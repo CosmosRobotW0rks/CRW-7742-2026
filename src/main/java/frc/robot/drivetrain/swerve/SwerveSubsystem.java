@@ -12,7 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ChassisConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.DriveGearRatioOption;
 import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
@@ -33,10 +33,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private final Map<SwerveModuleLocation, SwerveModule> modules = Map.of();
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-        new Translation2d(ChassisConstants.TrackWidthM / 2, ChassisConstants.TrackWidthM / 2), // Front Left
-        new Translation2d(ChassisConstants.TrackWidthM / 2, -ChassisConstants.TrackWidthM / 2), // Front Right
-        new Translation2d(-ChassisConstants.TrackWidthM / 2, ChassisConstants.TrackWidthM / 2), // Back Left
-        new Translation2d(-ChassisConstants.TrackWidthM / 2, -ChassisConstants.TrackWidthM / 2) // Back Right
+        new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
+        new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
+        new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
+        new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
     );
 
     ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -59,7 +59,22 @@ public class SwerveSubsystem extends SubsystemBase {
     public Rotation2d getRobotHeading()
     {
         // TODO: Make sure returned value is CCW positive
-        return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + ChassisConstants.RobotStartAngle.getDegrees());
+        return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + DriveConstants.RobotStartAngle.getDegrees());
+    }
+
+    public ChassisSpeeds getTargetChassisSpeeds()
+    {
+        return targetChassisSpeeds;
+    }
+
+    public ChassisSpeeds getTargetFieldOrientedSpeeds()
+    {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(
+            targetChassisSpeeds.vxMetersPerSecond,
+            targetChassisSpeeds.vyMetersPerSecond,
+            targetChassisSpeeds.omegaRadiansPerSecond,
+            gyro.getRotation2d()
+        );
     }
 
     // Setters
@@ -68,7 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
         targetChassisSpeeds = cs;
     }
 
-    public void setTargetFieldRelativeSpeeds(ChassisSpeeds cs)
+    public void setTargetFieldOrientedSpeeds(ChassisSpeeds cs)
     {
         var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             cs.vxMetersPerSecond,

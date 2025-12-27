@@ -16,16 +16,35 @@ public final class Constants {
   }
 
 
-  public static class ChassisConstants {
-    public static final double TrackWidthM = 0.63;
+  public static class DriveConstants {
+    // TODO -- Shuffleboard selection ?
     public static final Rotation2d RobotStartAngle = Rotation2d.fromDegrees(0);
+        
+
+    // (Will be) Calculated for the whole robot
+    public static final double MaxDriveSpeed = 1.5; // m/s
+
+    // Calculated for each axis, seperately
+    public static final double MaxDriveAccel = 4; // m/s^2
+    public static final double MaxDriveDeccel = 8; // m/s^2
+
+    public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s
+    public static final double MaxRotAccel = Math.PI * 2 * 6; // rad/s^2
+    public static final double MaxRotDeccel = Math.PI * 2 * 6; // rad/s^2
+    
+
+    public static final double JOYDeadzone_X = 0.1;
+    public static final double JOYDeadzone_Y = 0.1;
+    public static final double JOYDeadzone_Rot = 0.1;
   }
+
   public static class SwerveConstants {
 
     public enum DriveGearRatioOption {
       R1, R2, R3
     }
 
+    public static final double TrackWidthM = 0.63;
     public static final double GearRatio_Angle = 287 / 11;
     public static final Map<DriveGearRatioOption, Double> GearRatioMap_Drive = Map.of(
         DriveGearRatioOption.R1, 7.03,

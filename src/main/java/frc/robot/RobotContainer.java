@@ -5,21 +5,32 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
 
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+
+  private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   public RobotContainer() {
     configureBindings();
   }
 
-
   private void configureBindings() {
+
+    // TODO: Are the joystick directions (signs) correct?
+    swerveSubsystem.setDefaultCommand(new SwerveJoystickDriveCommand(
+        swerveSubsystem,
+        joystick,
+        () -> joystick.getLeftY(),
+        () -> -joystick.getLeftX(),
+        () -> -joystick.getRightX()));
+    
     
   }
 
