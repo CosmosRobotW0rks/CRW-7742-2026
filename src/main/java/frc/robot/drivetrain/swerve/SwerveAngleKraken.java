@@ -1,4 +1,4 @@
-package frc.robot.drivetrain;
+package frc.robot.drivetrain.swerve;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -8,8 +8,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.drivetrain.Common.BaseSwerveAngleMotor;
-import frc.robot.drivetrain.Common.SwerveMotorConfig;
+import frc.robot.drivetrain.swerve.common.BaseSwerveAngleMotor;
+import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 
 public class SwerveAngleKraken implements BaseSwerveAngleMotor{
 

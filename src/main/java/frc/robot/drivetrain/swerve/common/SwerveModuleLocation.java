@@ -1,4 +1,4 @@
-package frc.robot.drivetrain.Common;
+package frc.robot.drivetrain.swerve.common;
 
 public enum SwerveModuleLocation {
     FRONT_LEFT,
