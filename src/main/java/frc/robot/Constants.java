@@ -7,7 +7,6 @@ package frc.robot;
 import java.util.Map;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.drivetrain.Common.SwerveModuleConfiguration;
 import frc.robot.drivetrain.Common.SwerveModuleLocation;
 
 public final class Constants {

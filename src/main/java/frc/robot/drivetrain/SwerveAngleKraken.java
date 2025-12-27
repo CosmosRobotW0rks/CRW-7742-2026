@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.drivetrain.Common.BaseSwerveAngleMotor;
 import frc.robot.drivetrain.Common.SwerveMotorConfig;
 

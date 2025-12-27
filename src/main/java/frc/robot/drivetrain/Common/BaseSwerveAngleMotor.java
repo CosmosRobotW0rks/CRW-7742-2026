@@ -1,7 +1,6 @@
 package frc.robot.drivetrain.Common;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 
 public interface BaseSwerveAngleMotor {
 

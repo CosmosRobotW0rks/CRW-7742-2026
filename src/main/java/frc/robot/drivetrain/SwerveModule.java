@@ -1,16 +1,10 @@
 package frc.robot.drivetrain;
 
 import static edu.wpi.first.units.Units.Meters;
-
-import java.io.ObjectInputFilter.Config;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.drivetrain.Common.BaseSwerveAngleMotor;
-import frc.robot.drivetrain.Common.BaseSwerveDriveMotor;
 import frc.robot.drivetrain.Common.SwerveModuleConfiguration;
-import frc.robot.drivetrain.Common.SwerveMotorConfig;
 
 public class SwerveModule {
     public SwerveModule() {
