@@ -10,7 +10,7 @@ public class SwerveModule {
     public SwerveModule() {
     }
 
-    SwerveModuleConfiguration moduleConfig;
+    private SwerveModuleConfiguration moduleConfig;
 
     public void init(SwerveModuleConfiguration config) {
         this.moduleConfig = config;
@@ -24,14 +24,18 @@ public class SwerveModule {
 
     // GETTERS
 
-    public SwerveModuleState GetState() {
+    public SwerveModuleState getState() {
         return new SwerveModuleState(moduleConfig.driveMotor().getCurrentVelocity(),
                 moduleConfig.angleMotor().getCurrentAngle());
     }
 
-    public SwerveModulePosition GetPosition() {
+    public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(Meters.of(moduleConfig.driveMotor().getTotalDistance()),
                 moduleConfig.angleMotor().getCurrentAngle());
+    }
+
+    public Rotation2d getAngle() {
+        return moduleConfig.angleMotor().getCurrentAngle();
     }
 
     // SETTERS

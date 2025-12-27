@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.Map;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.drivetrain.Common.SwerveModuleLocation;
 
@@ -14,6 +15,11 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+
+  public static class ChassisConstants {
+    public static final double TrackWidthM = 0.63;
+    public static final Rotation2d RobotStartAngle = Rotation2d.fromDegrees(0);
+  }
   public static class SwerveConstants {
 
     public enum DriveGearRatioOption {
