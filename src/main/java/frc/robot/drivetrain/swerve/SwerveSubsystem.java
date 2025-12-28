@@ -4,12 +4,18 @@ import java.util.Map;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -20,6 +26,12 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 
 public class SwerveSubsystem extends SubsystemBase {
+
+            StructArrayPublisher<SwerveModuleState> swerveStatePublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("SwerveStates", SwerveModuleState.struct).publish();
+    StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("ChassisPose", Pose2d.struct).publish();
+            
 
     // For testing individual modules
     private final SwerveModuleLocation isolatedModule = SwerveModuleLocation.FRONT_LEFT;
@@ -77,6 +89,28 @@ public class SwerveSubsystem extends SubsystemBase {
                 gyro.getRotation2d());
     }
 
+    public SwerveModuleState[] getModuleStates()
+    {
+        SwerveModuleState[] states = new SwerveModuleState[SwerveModuleLocation.values().length];
+
+        for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
+            states[location.ordinal()] = modules.get(location).getState();
+        }
+
+        return states;
+    }
+
+    public SwerveModulePosition[] getModulePositions()
+    {
+        SwerveModulePosition[] positions = new SwerveModulePosition[SwerveModuleLocation.values().length];
+
+        for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
+            positions[location.ordinal()] = modules.get(location).getPosition();
+        }
+
+        return positions;
+    }
+
     // Setters
     public void setTargetSpeeds(ChassisSpeeds cs) {
         targetChassisSpeeds = cs;
@@ -96,6 +130,12 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         applyChassisSpeeds(targetChassisSpeeds);
+
+        SmartDashboard.putNumberArray("Chassis Speeds", new Double[]{targetChassisSpeeds.vxMetersPerSecond, targetChassisSpeeds.vyMetersPerSecond, targetChassisSpeeds.omegaRadiansPerSecond});
+
+        swerveStatePublisher.set(getModuleStates());
+        //posePublisher.set(getRobotPose());
+        SmartDashboard.putNumber("RobotHeading", getRobotHeading().getDegrees());
     }
 
     // Private methods
@@ -122,8 +162,6 @@ public class SwerveSubsystem extends SubsystemBase {
             DriverStation.reportWarning("WARNING!!! SWERVE MODULE ISOLATED: " + isolatedModule.name(), false);
 
         for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
-            if (isolatedModule != null && location != isolatedModule)
-                continue;
 
             boolean suc = initModule(location);
 
@@ -141,6 +179,14 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveDriveKraken driveMotor = new SwerveDriveKraken();
 
         SwerveModule module = new SwerveModule();
+
+
+        if (isolatedModule != null && location != isolatedModule)
+        {
+            modules.put(location, module);
+
+            return true;
+        }
 
         boolean angleMotorInitSuc = angleMotor.init(new SwerveMotorConfig(
                 SwerveConstants.AngleCANIDMap.get(location),

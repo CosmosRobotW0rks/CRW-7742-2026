@@ -59,20 +59,20 @@ public final class Constants {
     public static final double AnglePIDV_V = 0;
     public static final double AnglePeakVoltage = 9;
 
-    public static final double DrivePIDV_P = 0.1;
+    public static final double DrivePIDV_P = 0.05;
     public static final double DrivePIDV_I = 0;
     public static final double DrivePIDV_D = 0;
     public static final double DrivePIDV_V = 0.12;
     public static final double DrivePeakVoltage = 7;
 
     public static final Map<SwerveModuleLocation, Integer> AngleCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 1,
+        SwerveModuleLocation.FRONT_LEFT, 16,
         SwerveModuleLocation.FRONT_RIGHT, 2,
         SwerveModuleLocation.BACK_LEFT, 3,
         SwerveModuleLocation.BACK_RIGHT, 4);
 
     public static final Map<SwerveModuleLocation, Integer> DriveCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 5,
+        SwerveModuleLocation.FRONT_LEFT, 15,
         SwerveModuleLocation.FRONT_RIGHT, 6,
         SwerveModuleLocation.BACK_LEFT, 7,
         SwerveModuleLocation.BACK_RIGHT, 8);

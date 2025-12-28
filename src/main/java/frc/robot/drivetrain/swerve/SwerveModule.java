@@ -1,9 +1,15 @@
 package frc.robot.drivetrain.swerve;
 
 import static edu.wpi.first.units.Units.Meters;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
 
 public class SwerveModule {
@@ -25,11 +31,15 @@ public class SwerveModule {
     // GETTERS
 
     public SwerveModuleState getState() {
+        if(moduleConfig == null) return new SwerveModuleState(0, Rotation2d.kZero);
+
         return new SwerveModuleState(moduleConfig.driveMotor().getCurrentVelocity(),
                 moduleConfig.angleMotor().getCurrentAngle());
     }
 
     public SwerveModulePosition getPosition() {
+        if(moduleConfig == null) return new SwerveModulePosition(0,Rotation2d.kZero);
+
         return new SwerveModulePosition(Meters.of(moduleConfig.driveMotor().getTotalDistance()),
                 moduleConfig.angleMotor().getCurrentAngle());
     }
@@ -42,7 +52,7 @@ public class SwerveModule {
 
     public void SetTargetState(SwerveModuleState state) {
         optimizeState(state, false);
-
+        
         moduleConfig.angleMotor().setTargetAngle(state.angle);
         moduleConfig.driveMotor().setTargetVelocity(state.speedMetersPerSecond);
     }
