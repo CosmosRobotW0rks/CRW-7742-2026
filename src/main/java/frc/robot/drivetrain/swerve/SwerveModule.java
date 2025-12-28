@@ -10,7 +10,7 @@ public class SwerveModule {
     public SwerveModule() {
     }
 
-    private SwerveModuleConfiguration moduleConfig;
+    private SwerveModuleConfiguration moduleConfig = null;
 
     public void init(SwerveModuleConfiguration config) {
         this.moduleConfig = config;

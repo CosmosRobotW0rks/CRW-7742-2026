@@ -1,7 +1,6 @@
 package frc.robot.drivetrain.swerve;
 
 import java.util.Map;
-
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -10,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -20,6 +20,8 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 
 public class SwerveSubsystem extends SubsystemBase {
+
+    private final SwerveModuleLocation isolatedModule = null;
 
     // TODO: Shuffleboard selection
     private final DriveGearRatioOption driveGearRatioOption = DriveGearRatioOption.R2;
@@ -112,6 +114,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         for (SwerveModuleLocation location : SwerveModuleLocation.values())
         {
+            if(isolatedModule != null && location != isolatedModule) continue;
+
             SwerveModule module = modules.get(location);
             SwerveModuleState state = states[location.ordinal()];
             
@@ -122,10 +126,14 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private void initModules() {
-        initModule(SwerveModuleLocation.FRONT_LEFT);
-        initModule(SwerveModuleLocation.FRONT_RIGHT);
-        initModule(SwerveModuleLocation.BACK_LEFT);
-        initModule(SwerveModuleLocation.BACK_RIGHT);
+
+        if(isolatedModule != null) DriverStation.reportWarning("WARNING!!! SWERVE MODULE ISOLATED: " + isolatedModule.name(), false);
+
+        for(SwerveModuleLocation location : SwerveModuleLocation.values())
+        {
+            if(isolatedModule != null && location != isolatedModule) continue;
+            initModule(location);
+        }
     }
 
     private void initModule(SwerveModuleLocation location)
