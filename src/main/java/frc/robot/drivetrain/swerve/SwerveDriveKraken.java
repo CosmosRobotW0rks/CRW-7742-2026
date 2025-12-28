@@ -95,8 +95,7 @@ public class SwerveDriveKraken implements BaseSwerveDriveMotor {
         double motorRPS = metersToMotorRot(velocityMetersPerSecond);
 
         request.Velocity = motorRPS;
-        DriverStation.reportWarning("RPS: " + ((Double)motorRPS).toString() + " // " + "MPS: " + ((Double)velocityMetersPerSecond).toString(), false);
-
+        
         StatusCode code = talonFX.setControl(request);
 
         if(code.isError())
