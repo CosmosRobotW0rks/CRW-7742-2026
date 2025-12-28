@@ -66,16 +66,16 @@ public final class Constants {
     public static final double DrivePeakVoltage = 7;
 
     public static final Map<SwerveModuleLocation, Integer> AngleCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, -1,
-        SwerveModuleLocation.FRONT_RIGHT, -1,
-        SwerveModuleLocation.BACK_LEFT, -1,
-        SwerveModuleLocation.BACK_RIGHT, -1);
+        SwerveModuleLocation.FRONT_LEFT, 1,
+        SwerveModuleLocation.FRONT_RIGHT, 2,
+        SwerveModuleLocation.BACK_LEFT, 3,
+        SwerveModuleLocation.BACK_RIGHT, 4);
 
     public static final Map<SwerveModuleLocation, Integer> DriveCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, -1,
-        SwerveModuleLocation.FRONT_RIGHT, -1,
-        SwerveModuleLocation.BACK_LEFT, -1,
-        SwerveModuleLocation.BACK_RIGHT, -1);
+        SwerveModuleLocation.FRONT_LEFT, 5,
+        SwerveModuleLocation.FRONT_RIGHT, 6,
+        SwerveModuleLocation.BACK_LEFT, 7,
+        SwerveModuleLocation.BACK_RIGHT, 8);
 
     // Absolute encoder not implemented yet
     public static final int ABSENCPORTID_FL = -1;
