@@ -59,7 +59,7 @@ public final class Constants {
     public static final double AnglePIDV_V = 0;
     public static final double AnglePeakVoltage = 9;
 
-    public static final double DrivePIDV_P = 0.05;
+    public static final double DrivePIDV_P = 0.0000005; // Old value: 0.05 -- TODO: test new P value
     public static final double DrivePIDV_I = 0;
     public static final double DrivePIDV_D = 0;
     public static final double DrivePIDV_V = 0.12;
