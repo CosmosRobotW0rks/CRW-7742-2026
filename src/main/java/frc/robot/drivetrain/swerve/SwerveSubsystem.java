@@ -34,7 +34,7 @@ public class SwerveSubsystem extends SubsystemBase {
             
 
     // For testing individual modules
-    private final SwerveModuleLocation isolatedModule = SwerveModuleLocation.FRONT_LEFT;
+    private final SwerveModuleLocation isolatedModule = null;
 
     // TODO: Shuffleboard selection
     private final DriveGearRatioOption driveGearRatioOption = DriveGearRatioOption.R2;
@@ -136,6 +136,13 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveStatePublisher.set(getModuleStates());
         //posePublisher.set(getRobotPose());
         SmartDashboard.putNumber("RobotHeading", getRobotHeading().getDegrees());
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        for (SwerveModule module : modules.values()) {
+            module.simulationPeriodic();
+        }
     }
 
     // Private methods

@@ -1,8 +1,6 @@
 package frc.robot.drivetrain.swerve.common;
 
-public interface BaseSwerveDriveMotor {
-
-    public boolean init(SwerveMotorConfig config);
+public interface BaseSwerveDriveMotor extends BaseSwerveMotor{
 
     public double getTotalDistance();
     public double getCurrentVelocity();

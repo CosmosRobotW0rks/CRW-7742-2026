@@ -2,9 +2,7 @@ package frc.robot.drivetrain.swerve.common;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public interface BaseSwerveAngleMotor {
-
-    public boolean init(SwerveMotorConfig config);
+public interface BaseSwerveAngleMotor extends BaseSwerveMotor {
 
     public Rotation2d getCurrentAngle();
     public Rotation2d getTargetAngle();

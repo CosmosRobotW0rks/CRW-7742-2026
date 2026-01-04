@@ -57,6 +57,14 @@ public class SwerveModule {
         moduleConfig.driveMotor().setTargetVelocity(state.speedMetersPerSecond);
     }
 
+    // SIMULATION
+
+    public void simulationPeriodic() {
+        if(moduleConfig == null) return;
+        moduleConfig.driveMotor().simulationPeriodic();
+        moduleConfig.angleMotor().simulationPeriodic();
+    }
+
 
     // UTILS
 

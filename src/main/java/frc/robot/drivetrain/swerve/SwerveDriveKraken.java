@@ -1,11 +1,18 @@
 package frc.robot.drivetrain.swerve;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.drivetrain.swerve.common.BaseSwerveDriveMotor;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 
@@ -16,6 +23,7 @@ public class SwerveDriveKraken implements BaseSwerveDriveMotor {
     VelocityVoltage request = new VelocityVoltage(0).withSlot(0);
 
     TalonFX talonFX;
+    DCMotorSim motorSimModel;
 
     double gearRatio;
 
@@ -27,6 +35,7 @@ public class SwerveDriveKraken implements BaseSwerveDriveMotor {
         motorConfig = config;
 
         talonFX = new TalonFX(config.canID());
+        motorSimModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.001, motorConfig.gearRatio()), DCMotor.getKrakenX60Foc(1));
 
         var talonCfg = new TalonFXConfiguration();
         var slot0Configs = new Slot0Configs();
@@ -105,6 +114,23 @@ public class SwerveDriveKraken implements BaseSwerveDriveMotor {
 
         targetMotorRPS = motorRPS;
         
+    }
+
+    // SIMULATION
+
+    @Override
+    public void simulationPeriodic() {
+        var talonFXSim = talonFX.getSimState();
+        
+        talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        var motorVoltage = talonFXSim.getMotorVoltageMeasure();
+
+        motorSimModel.setInputVoltage(motorVoltage.in(Volts));
+        motorSimModel.update(0.02);
+
+        talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition().times(motorConfig.gearRatio()));
+        talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity().times(motorConfig.gearRatio()));
     }
 
 
