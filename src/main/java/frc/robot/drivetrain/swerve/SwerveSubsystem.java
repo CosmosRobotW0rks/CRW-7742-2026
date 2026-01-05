@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,6 +37,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
             .getStructTopic("ChassisPose", Pose2d.struct).publish();
+
+    Field2d fieldToPublish = new Field2d();
+
 
     // For testing individual modules
     private final SwerveModuleLocation isolatedModule = null;
@@ -62,6 +66,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Odometry
     private SwerveDriveOdometry odometry;
+    private boolean odometryEnabled = true;
 
     // Constructor
     public SwerveSubsystem() {
@@ -74,6 +79,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 kinematics,
                 getRobotHeading(),
                 getModulePositions());
+        
+        SmartDashboard.putData("ToggleOdometry", toggleOdometry());
+        SmartDashboard.putData("Field", fieldToPublish);
     }
 
     // Actions
@@ -81,6 +89,13 @@ public class SwerveSubsystem extends SubsystemBase {
         return runOnce(() -> {
             targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
             modules.values().forEach(module -> module.stop());
+        });
+    }
+
+    public Command toggleOdometry()
+    {
+        return runOnce(() -> {
+            odometryEnabled = !odometryEnabled;
         });
     }
 
@@ -158,14 +173,15 @@ public class SwerveSubsystem extends SubsystemBase {
         applyChassisSpeeds(targetChassisSpeeds);
 
         // Odometry
-        odometry.update(getRobotHeading(), getModulePositions());
+        if(odometryEnabled) odometry.update(getRobotHeading(), getModulePositions());
 
         // Publishing
         swerveStatePublisher.set(getModuleStates());
         posePublisher.set(getRobotPose());
-        SmartDashboard.putNumberArray("Chassis Speeds", new Double[] { targetChassisSpeeds.vxMetersPerSecond,
-                targetChassisSpeeds.vyMetersPerSecond, targetChassisSpeeds.omegaRadiansPerSecond });
+        fieldToPublish.setRobotPose(getRobotPose());
+
         SmartDashboard.putNumber("RobotHeading", getRobotHeading().getDegrees());
+        SmartDashboard.putBoolean("OdometryEnabled", odometryEnabled);
     }
 
     @Override
