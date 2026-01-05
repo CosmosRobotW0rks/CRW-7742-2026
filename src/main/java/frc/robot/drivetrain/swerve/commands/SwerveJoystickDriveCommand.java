@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
@@ -49,9 +50,6 @@ public class SwerveJoystickDriveCommand extends Command {
     
     @Override
     public void execute() {
-
-        final double xyPow = 3;
-
         double xpercent = suppX.get();
         double ypercent = suppY.get();
         double zpercent = suppZ.get();
@@ -60,18 +58,13 @@ public class SwerveJoystickDriveCommand extends Command {
         ypercent = MathUtil.applyDeadband(ypercent, DriveConstants.JOYDeadzone_Y);
         zpercent = MathUtil.applyDeadband(zpercent, DriveConstants.JOYDeadzone_Rot);
 
-
-        xpercent = Math.copySign(Math.pow(xpercent, xyPow), xpercent);
-        ypercent = Math.copySign(Math.pow(ypercent, xyPow), ypercent);
-
         xpercent = MathUtil.clamp(xpercent, -1, 1);
         ypercent = MathUtil.clamp(ypercent, -1, 1);
         zpercent = MathUtil.clamp(zpercent, -1, 1);
 
         // TODO: Could be better to use current cs rather than target cs
         ChassisSpeeds focs = swerve.getTargetFieldOrientedSpeeds();
-
-        // TODO: Do some pythagorean theorem shit to make sure the max speed is not exceeded
+        
         double targetSpeeds[] = new double[] {
             xpercent * DriveConstants.MaxDriveSpeed,
             ypercent * DriveConstants.MaxDriveSpeed,

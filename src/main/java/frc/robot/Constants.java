@@ -25,7 +25,7 @@ public final class Constants {
     public static final double MaxDriveSpeed = 1.5; // m/s
 
     // Calculated for each axis, seperately
-    public static final double MaxDriveAccel = 4; // m/s^2
+    public static final double MaxDriveAccel = 8; // m/s^2
     public static final double MaxDriveDeccel = 8; // m/s^2
 
     public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s
@@ -59,7 +59,7 @@ public final class Constants {
     public static final double AnglePIDV_V = 0;
     public static final double AnglePeakVoltage = 9;
 
-    public static final double DrivePIDV_P = 0.05;
+    public static final double DrivePIDV_P = 0.0000005; // Old value: 0.05 -- TODO: test new P value
     public static final double DrivePIDV_I = 0;
     public static final double DrivePIDV_D = 0;
     public static final double DrivePIDV_V = 0.12;

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.DriveGearRatioOption;
@@ -34,7 +35,7 @@ public class SwerveSubsystem extends SubsystemBase {
             
 
     // For testing individual modules
-    private final SwerveModuleLocation isolatedModule = SwerveModuleLocation.FRONT_LEFT;
+    private final SwerveModuleLocation isolatedModule = null;
 
     // TODO: Shuffleboard selection
     private final DriveGearRatioOption driveGearRatioOption = DriveGearRatioOption.R2;
@@ -112,12 +113,19 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Setters
-    public void setTargetSpeeds(ChassisSpeeds cs) {
-        targetChassisSpeeds = cs;
-    }
 
     public void setTargetFieldOrientedSpeeds(ChassisSpeeds cs) {
         var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                cs.vxMetersPerSecond,
+                cs.vyMetersPerSecond,
+                cs.omegaRadiansPerSecond,
+                gyro.getRotation2d());
+
+        setTargetSpeeds(robotRelativeSpeeds);
+    }
+
+    public void setTargetRobotOrientedSpeeds(ChassisSpeeds cs) {
+        var robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
                 cs.vxMetersPerSecond,
                 cs.vyMetersPerSecond,
                 cs.omegaRadiansPerSecond,
@@ -138,10 +146,24 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("RobotHeading", getRobotHeading().getDegrees());
     }
 
+    @Override
+    public void simulationPeriodic() {
+        for (SwerveModule module : modules.values()) {
+            module.simulationPeriodic();
+        }
+    }
+
     // Private methods
 
+    private void setTargetSpeeds(ChassisSpeeds cs) {
+        targetChassisSpeeds = cs;
+    }
+    
     private void applyChassisSpeeds(ChassisSpeeds cs) {
+
         var states = kinematics.toSwerveModuleStates(cs);
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.DriveConstants.MaxDriveSpeed);
 
         for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
             if (isolatedModule != null && location != isolatedModule)

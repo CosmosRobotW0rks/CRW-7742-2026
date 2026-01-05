@@ -1,13 +1,23 @@
 package frc.robot.drivetrain.swerve;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import java.nio.channels.Pipe;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Robot;
 import frc.robot.drivetrain.swerve.common.BaseSwerveAngleMotor;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 
@@ -17,6 +27,7 @@ public class SwerveAngleKraken implements BaseSwerveAngleMotor{
 
     PositionVoltage request = new PositionVoltage(0).withSlot(0);
 
+    DCMotorSim motorSimModel;
     TalonFX talonFX;
 
     double targetMotorRot = 0;
@@ -27,6 +38,7 @@ public class SwerveAngleKraken implements BaseSwerveAngleMotor{
         motorConfig = config;
 
         talonFX = new TalonFX(config.canID());
+        motorSimModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.001, motorConfig.gearRatio()), DCMotor.getKrakenX60Foc(1));
 
         var talonCfg = new TalonFXConfiguration();
         var slot0Configs = new Slot0Configs();
@@ -100,6 +112,24 @@ public class SwerveAngleKraken implements BaseSwerveAngleMotor{
         {
             DriverStation.reportError("Failed to set Swerve TalonFX (ID: " + talonFX.getDeviceID() + ") target angle", false);
         }
+    }
+
+
+    // SIMULATION
+
+    @Override
+    public void simulationPeriodic() {
+        var talonFXSim = talonFX.getSimState();
+        
+        talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        var motorVoltage = talonFXSim.getMotorVoltageMeasure();
+
+        motorSimModel.setInputVoltage(motorVoltage.in(Volts));
+        motorSimModel.update(0.02);
+
+        talonFXSim.setRawRotorPosition(motorSimModel.getAngularPosition().times(motorConfig.gearRatio()));
+        talonFXSim.setRotorVelocity(motorSimModel.getAngularVelocity().times(motorConfig.gearRatio()));
     }
 
 
