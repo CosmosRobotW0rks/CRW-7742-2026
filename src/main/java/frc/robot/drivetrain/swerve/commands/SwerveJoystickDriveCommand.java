@@ -62,7 +62,6 @@ public class SwerveJoystickDriveCommand extends Command {
         ypercent = MathUtil.clamp(ypercent, -1, 1);
         zpercent = MathUtil.clamp(zpercent, -1, 1);
 
-        // TODO: Could be better to use current cs rather than target cs
         ChassisSpeeds focs = swerve.getTargetFieldOrientedSpeeds();
         
         double targetSpeeds[] = new double[] {
