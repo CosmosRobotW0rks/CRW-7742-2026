@@ -23,6 +23,7 @@ public final class Constants {
 
     // (Will be) Calculated for the whole robot
     public static final double MaxDriveSpeed = 1.5; // m/s
+    public static final double SwerveDesaturationThreshold = 6; // m/s
 
     // Calculated for each axis, seperately
     public static final double MaxDriveAccel = 8; // m/s^2
