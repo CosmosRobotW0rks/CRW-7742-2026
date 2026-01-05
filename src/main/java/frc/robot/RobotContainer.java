@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.drivetrain.VisionSubsystem;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +17,7 @@ public class RobotContainer {
   private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   public RobotContainer() {
     configureBindings();
