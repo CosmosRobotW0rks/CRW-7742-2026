@@ -26,7 +26,7 @@ public final class Constants {
 
     // Calculated for each axis, seperately
     public static final double MaxDriveAccel = 8; // m/s^2
-    public static final double MaxDriveDeccel = 8; // m/s^2
+    public static final double MaxDriveDeccel = 20; // m/s^2
 
     public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s
     public static final double MaxRotAccel = Math.PI * 2 * 6; // rad/s^2
