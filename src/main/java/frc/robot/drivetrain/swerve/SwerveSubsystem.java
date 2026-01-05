@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.DriveGearRatioOption;
@@ -44,6 +45,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // External sensors
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
+    private double simulatedGyroAngleRad = 0;
 
     // Swerve related
 
@@ -89,7 +91,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Rotation2d getRobotHeading() {
         // TODO: Make sure returned value is CCW positive
-        return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + DriveConstants.RobotStartAngle.getDegrees());
+
+        if(Robot.isSimulation())
+            return Rotation2d.fromRadians(simulatedGyroAngleRad);
+        else
+            return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + DriveConstants.RobotStartAngle.getDegrees());
     }
 
     public ChassisSpeeds getTargetChassisSpeeds() {
@@ -101,7 +107,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 targetChassisSpeeds.vxMetersPerSecond,
                 targetChassisSpeeds.vyMetersPerSecond,
                 targetChassisSpeeds.omegaRadiansPerSecond,
-                gyro.getRotation2d());
+                getRobotHeading());
     }
 
     public SwerveModuleState[] getModuleStates() {
@@ -131,7 +137,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 cs.vxMetersPerSecond,
                 cs.vyMetersPerSecond,
                 cs.omegaRadiansPerSecond,
-                gyro.getRotation2d());
+                getRobotHeading());
 
         setTargetSpeeds(robotRelativeSpeeds);
     }
@@ -141,7 +147,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 cs.vxMetersPerSecond,
                 cs.vyMetersPerSecond,
                 cs.omegaRadiansPerSecond,
-                gyro.getRotation2d());
+                getRobotHeading());
 
         setTargetSpeeds(robotRelativeSpeeds);
     }
@@ -167,6 +173,8 @@ public class SwerveSubsystem extends SubsystemBase {
         for (SwerveModule module : modules.values()) {
             module.simulationPeriodic();
         }
+
+        simulatedGyroAngleRad += targetChassisSpeeds.omegaRadiansPerSecond * 0.02;
     }
 
     // Private methods
