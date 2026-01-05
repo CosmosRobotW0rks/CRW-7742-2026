@@ -81,6 +81,8 @@ public class SwerveJoystickDriveCommand extends Command {
 
         ChassisSpeeds targetfocs = new ChassisSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
 
+        //SmartDashboard.putNumberArray("CommOutArr", new double[] {targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]});
+
         swerve.setTargetFieldOrientedSpeeds(targetfocs);
     }
 

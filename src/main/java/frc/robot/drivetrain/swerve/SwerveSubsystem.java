@@ -201,6 +201,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private void applyChassisSpeeds(ChassisSpeeds cs) {
 
+        //SmartDashboard.putNumberArray("AppliedCS", new double[] {cs.vxMetersPerSecond, cs.vyMetersPerSecond, cs.omegaRadiansPerSecond});
+
         var states = kinematics.toSwerveModuleStates(cs);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.DriveConstants.SwerveDesaturationThreshold);

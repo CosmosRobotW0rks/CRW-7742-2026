@@ -21,8 +21,7 @@ public final class Constants {
     public static final Rotation2d RobotStartAngle = Rotation2d.fromDegrees(0);
         
 
-    // (Will be) Calculated for the whole robot
-    public static final double MaxDriveSpeed = 3; // m/s
+    public static final double MaxDriveSpeed = 4; // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s
 
     // Calculated for each axis, seperately
@@ -64,7 +63,7 @@ public final class Constants {
     public static final double DrivePIDV_I = 0;
     public static final double DrivePIDV_D = 0;
     public static final double DrivePIDV_V = 0.12;
-    public static final double DrivePeakVoltage = 7;
+    public static final double DrivePeakVoltage = 12;
 
     public static final Map<SwerveModuleLocation, Integer> AngleCANIDMap = Map.of(
         SwerveModuleLocation.FRONT_LEFT, 16,
