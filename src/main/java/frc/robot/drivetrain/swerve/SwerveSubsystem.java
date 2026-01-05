@@ -112,12 +112,19 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Setters
-    public void setTargetSpeeds(ChassisSpeeds cs) {
-        targetChassisSpeeds = cs;
-    }
 
     public void setTargetFieldOrientedSpeeds(ChassisSpeeds cs) {
         var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                cs.vxMetersPerSecond,
+                cs.vyMetersPerSecond,
+                cs.omegaRadiansPerSecond,
+                gyro.getRotation2d());
+
+        setTargetSpeeds(robotRelativeSpeeds);
+    }
+
+    public void setTargetRobotOrientedSpeeds(ChassisSpeeds cs) {
+        var robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
                 cs.vxMetersPerSecond,
                 cs.vyMetersPerSecond,
                 cs.omegaRadiansPerSecond,
@@ -147,6 +154,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Private methods
 
+    private void setTargetSpeeds(ChassisSpeeds cs) {
+        targetChassisSpeeds = cs;
+    }
+    
     private void applyChassisSpeeds(ChassisSpeeds cs) {
         var states = kinematics.toSwerveModuleStates(cs);
 
