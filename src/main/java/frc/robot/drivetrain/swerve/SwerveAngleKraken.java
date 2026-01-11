@@ -2,14 +2,11 @@ package frc.robot.drivetrain.swerve;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.nio.channels.Pipe;
-
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -17,7 +14,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Robot;
 import frc.robot.drivetrain.swerve.common.BaseSwerveAngleMotor;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 
