@@ -15,6 +15,19 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class PhysicalProperties 
+  {
+    public static final double RobotMassKg = 54; // kg
+    public static final double RobotMOI = 6; // kg m^2 (Moment of Inertia)
+    public static final double wheelCOF = 1.2; // Friction coefficient
+
+  }
+
+  public static class AutoConstants {   
+    public static final double AutoMaxDriveSpeed = 4; // m/s
+    public static final double AutoMaxCurrent = 60; // Amps
+
+  }
 
   public static class DriveConstants {
     // TODO -- Shuffleboard selection ?

@@ -1,6 +1,14 @@
 package frc.robot.drivetrain.swerve;
 
 import java.util.Map;
+import java.util.logging.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -12,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
@@ -22,12 +31,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.PhysicalProperties;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.DriveGearRatioOption;
 import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
 import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
+import frc.robot.utils.AllianceUtils;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -55,12 +67,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Map<SwerveModuleLocation, SwerveModule> modules = new java.util.EnumMap<>(SwerveModuleLocation.class);
 
-    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-            new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
-            new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
-            new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
-            new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
-    );
+    private final Translation2d[] moduleOffsets = {
+    new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
+    new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
+    new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
+    new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
+    };
+
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleOffsets);
 
     ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
@@ -70,26 +84,59 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Constructor
     public SwerveSubsystem() {
+
+        // Modules Init
         boolean moduleInitSuc = initModules();
         if (!moduleInitSuc) {
             DriverStation.reportError("Failed to initialize Swerve Subsystem", false);
         }
 
+        // Odom Init
         odometry = new SwerveDriveOdometry(
                 kinematics,
                 getRobotHeading(),
                 getModulePositions());
+
+        // PathPlanner Init
+        ModuleConfig ppModuleConfig = new ModuleConfig(
+            SwerveConstants.WheelRadiusM,
+            AutoConstants.AutoMaxDriveSpeed, 
+            PhysicalProperties.wheelCOF,
+            DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
+            AutoConstants.AutoMaxCurrent,
+            8);
+
+        RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI, ppModuleConfig,  SwerveConstants.TrackWidthM);
+
+        AutoBuilder.configure(
+            this::getRobotPose,
+            this::resetRobotPose, 
+            this::getRobotRelativeSpeeds,
+            (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
+            new PPHolonomicDriveController(
+                    new PIDConstants(5.0, 0.0, 0.0),
+                    new PIDConstants(5.0, 0.0, 0.0)
+            ),
+            ppConfig, 
+            () -> AllianceUtils.isRedAlliance(), 
+            this);
         
+        // NT Publishers Init
         SmartDashboard.putData("ToggleOdometry", toggleOdometry());
         SmartDashboard.putData("Field", fieldToPublish);
     }
 
     // Actions
-    public Command Stop() {
+    public Command StopCommand() {
         return runOnce(() -> {
             targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
             modules.values().forEach(module -> module.stop());
         });
+    }
+    
+    public void Stop() {
+        targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+        modules.values().forEach(module -> module.stop());
     }
 
     public Command toggleOdometry()
@@ -113,11 +160,25 @@ public class SwerveSubsystem extends SubsystemBase {
             return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + DriveConstants.RobotStartAngle.getDegrees());
     }
 
-    public ChassisSpeeds getTargetChassisSpeeds() {
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        return kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    public ChassisSpeeds getFieldRelativeSpeeds() {
+        ChassisSpeeds robotRelativeSpeeds = kinematics.toChassisSpeeds(getModuleStates());
+
+        return ChassisSpeeds.fromRobotRelativeSpeeds(
+                robotRelativeSpeeds.vxMetersPerSecond,
+                robotRelativeSpeeds.vyMetersPerSecond,
+                robotRelativeSpeeds.omegaRadiansPerSecond,
+                getRobotHeading());
+    }
+
+    public ChassisSpeeds getTargetRobotRelativeSpeeds() {
         return targetChassisSpeeds;
     }
 
-    public ChassisSpeeds getTargetFieldOrientedSpeeds() {
+    public ChassisSpeeds getTargetFieldRelativeSpeeds() {
         return ChassisSpeeds.fromRobotRelativeSpeeds(
                 targetChassisSpeeds.vxMetersPerSecond,
                 targetChassisSpeeds.vyMetersPerSecond,
@@ -147,7 +208,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Setters
 
-    public void setTargetFieldOrientedSpeeds(ChassisSpeeds cs) {
+    public void setTargetFieldRelativeSpeeds(ChassisSpeeds cs) {
         var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 cs.vxMetersPerSecond,
                 cs.vyMetersPerSecond,
@@ -157,14 +218,9 @@ public class SwerveSubsystem extends SubsystemBase {
         setTargetSpeeds(robotRelativeSpeeds);
     }
 
-    public void setTargetRobotOrientedSpeeds(ChassisSpeeds cs) {
-        var robotRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                cs.vxMetersPerSecond,
-                cs.vyMetersPerSecond,
-                cs.omegaRadiansPerSecond,
-                getRobotHeading());
+    public void setTargetRobotRelativeSpeeds(ChassisSpeeds cs) {
 
-        setTargetSpeeds(robotRelativeSpeeds);
+        setTargetSpeeds(cs);
     }
 
     // Periodic (20ms!!)
@@ -194,6 +250,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Private methods
+
+    private void resetRobotPose(Pose2d pose) {
+        odometry.resetPosition(
+                getRobotHeading(),
+                getModulePositions(),
+                pose);
+    }
 
     private void setTargetSpeeds(ChassisSpeeds cs) {
         targetChassisSpeeds = cs;

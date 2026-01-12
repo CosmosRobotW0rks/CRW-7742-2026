@@ -8,8 +8,13 @@ import frc.robot.Constants.OperatorConstants;
 //import frc.robot.drivetrain.VisionSubsystem;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
@@ -26,17 +31,27 @@ public class RobotContainer {
   private void configureBindings() {
 
     // TODO: Are the joystick directions (signs) correct?
+    
     swerveSubsystem.setDefaultCommand(new SwerveJoystickDriveCommand(
         swerveSubsystem,
         joystick,
         () -> -joystick.getLeftY(),
         () -> -joystick.getLeftX(),
         () -> -joystick.getRightX()));
+
+    joystick.a().whileTrue(getAutonomousCommand());
+         
     
     
   }
 
+  double time = 0;
+
   public Command getAutonomousCommand() {
-    return Commands.none();
+
+    return Commands.runOnce(() -> time = Timer.getFPGATimestamp()).andThen(new PathPlannerAuto("New Auto")).andThen(() ->{
+      System.out.println("AUTO TIME: " + (Timer.getFPGATimestamp() - time));
+    }).finallyDo(() -> swerveSubsystem.Stop());
   }
+
 }

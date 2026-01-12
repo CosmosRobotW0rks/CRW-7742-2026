@@ -61,7 +61,7 @@ public class SwerveJoystickDriveCommand extends Command {
         ypercent = MathUtil.clamp(ypercent, -1, 1);
         zpercent = MathUtil.clamp(zpercent, -1, 1);
 
-        ChassisSpeeds focs = swerve.getTargetFieldOrientedSpeeds();
+        ChassisSpeeds focs = swerve.getTargetFieldRelativeSpeeds();
         
         double targetSpeeds[] = new double[] {
             xpercent * DriveConstants.MaxDriveSpeed,
@@ -82,7 +82,7 @@ public class SwerveJoystickDriveCommand extends Command {
 
         //SmartDashboard.putNumberArray("CommOutArr", new double[] {targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]});
 
-        swerve.setTargetFieldOrientedSpeeds(targetfocs);
+        swerve.setTargetFieldRelativeSpeeds(targetfocs);
     }
 
     void applyFilter(double[] targetSpeeds, double[] prevSpeeds)
