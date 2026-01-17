@@ -5,6 +5,7 @@ import java.security.PublicKey;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -12,19 +13,34 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.utils.Elastic;
+import frc.robot.Robot;
+import frc.robot.utils.Logging;
 
 public class ShooterSubsystem extends SubsystemBase {
 
   private SparkMax upperMotor;
   private SparkMax lowerMotor;
   private SparkMax feederMotor;
+  
+  double upperMotorSimRPM = 0;
+  double lowerMotorSimRPM = 0;
+  double feederMotorSimRPM = 0;
 
   private ShooterCalibration calibration;
 
@@ -34,21 +50,29 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
 
+
     // Load Calibration
     int selectedSlot = ShooterCalibration.getSelectedCalibrationSlot();
     if(selectedSlot == -1)
     {
-      Elastic.errorMsg("Shooter Calibration Error", "An error occured while reading the selected shootercalib slot");
+      Logging.stickyError("Shooter Calibration Error", "An error occured while reading the selected shootercalib slot");
       return;
     }
 
     calibration = ShooterCalibration.loadFromSlot(selectedSlot);
-    if(calibration == null)
+    if(calibration == null && selectedSlot != 0)
     {
-      Elastic.errorMsg("Shooter Calibration Error", "An error occured while reading shootercalib slot " + selectedSlot);
+      Logging.stickyError("Shooter Calibration Error", "An error occured while reading shootercalib slot " + selectedSlot);
       return;
     }
 
+    if(calibration != null) Logging.infoMsg("Shooter Calibration Loaded", "Successfully loaded shootercalib slot " + selectedSlot);
+    else
+    {
+      Logging.stickyWarning("Shooter Calibration Warning", "Shooter calibration not found. Shooter won't be able to shoot.");
+    }
+
+    // Motors
     upperMotor = new SparkMax(Constants.ShooterConstants.UpperShooterMotorCANID, MotorType.kBrushless); // MAXMotion
                                                                                                         // Velocity
     SparkMaxConfig upperMotorConfig = new SparkMaxConfig();
@@ -71,34 +95,35 @@ public class ShooterSubsystem extends SubsystemBase {
     feederMotorConfig.closedLoop.feedForward.kV(Constants.ShooterConstants.FeederPF_F);
     feederMotorConfig.closedLoop.p(Constants.ShooterConstants.FeederPF_P);
     feederMotor.configure(feederMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+
+    refreshShooterTargetRPMs();
   }
 
   // TRIGGERS
-  public Trigger readyToShoot() {
+  public Trigger isReadyToShoot() {
     return new Trigger(() -> isShooterAtTargetRPM());
   }
 
   // COMMANDS
 
-  public Command prepareShooter() {
+  public Command prepareShooterCommand() {
     return Commands.runEnd(
         () -> {
           refreshShooterTargetRPMs();
           setUpperMotorRPM(upperMotorTargetRPM);
-          setLowerMotorRPM(upperMotorTargetRPM);
+          setLowerMotorRPM(lowerMotorTargetRPM);
         },
         () -> {
           setUpperMotorRPM(0);
           setLowerMotorRPM(0);
-        },
-        this);
+        });
   }
 
   public Command FeedCommand() {
     return Commands.runEnd(
         () -> toggleFeeder(true),
-        () -> toggleFeeder(false),
-        this);
+        () -> toggleFeeder(false));
   }
 
   // UTILS
@@ -110,33 +135,34 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // BOOL CHECKS
   private boolean isFeederAtTargetRPM() {
-    return getFeederMotorRPM() == Constants.ShooterConstants.Feeder_TargetRPM;
+    return Math.abs(getFeederMotorRPM() - Constants.ShooterConstants.Feeder_TargetRPM) < Constants.ShooterConstants.RPM_Tolerance;
   }
 
   private boolean isShooterAtTargetRPM() {
-    return getUpperMotorRPM() == upperMotorTargetRPM && getLowerMotorRPM() == lowerMotorTargetRPM;
+    return Math.abs(getUpperMotorRPM() - upperMotorTargetRPM) < Constants.ShooterConstants.RPM_Tolerance && Math.abs(getLowerMotorRPM() - lowerMotorTargetRPM) < Constants.ShooterConstants.RPM_Tolerance;
   }
 
   // GET RPMS
   private double getUpperMotorRPM() {
-    return upperMotor.getEncoder().getVelocity();
+    return Robot.isSimulation() ? upperMotorSimRPM : upperMotor.getEncoder().getVelocity();
   }
 
   private double getLowerMotorRPM() {
-    return lowerMotor.getEncoder().getVelocity();
+    return Robot.isSimulation() ? lowerMotorSimRPM : lowerMotor.getEncoder().getVelocity();
   }
 
   private double getFeederMotorRPM() {
-    return feederMotor.getEncoder().getVelocity();
+    return Robot.isSimulation() ? feederMotorSimRPM : feederMotor.getEncoder().getVelocity();
   }
 
   // SET RPMS
   private void setUpperMotorRPM(double rpm) {
-    upperMotor.getClosedLoopController().setSetpoint(rpm, ControlType.kMAXMotionVelocityControl);
+
+    upperMotor.getClosedLoopController().setSetpoint(rpm, Robot.isSimulation() ? ControlType.kVelocity : ControlType.kMAXMotionVelocityControl);
   }
 
   private void setLowerMotorRPM(double rpm) {
-    lowerMotor.getClosedLoopController().setSetpoint(rpm, ControlType.kMAXMotionVelocityControl);
+    lowerMotor.getClosedLoopController().setSetpoint(rpm, Robot.isSimulation() ? ControlType.kVelocity : ControlType.kMAXMotionVelocityControl);
   }
 
   private void toggleFeeder(boolean state) {
@@ -156,11 +182,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Shooter/TargetRPMs/UpperShooterTargetRPM", upperMotorTargetRPM);
     SmartDashboard.putNumber("Shooter/TargetRPMs/LowerShooterTargetRPM", lowerMotorTargetRPM);
+
+    SmartDashboard.putNumber("Shooter/CalibrationSlot", calibration == null ? -1 : calibration.getSlot());
   }
 
   @Override
   public void simulationPeriodic() {
-      
+    upperMotorSimRPM += Math.signum(upperMotor.getClosedLoopController().getSetpoint()-upperMotorSimRPM) * 0.02 * Constants.ShooterConstants.Shooter_MaxAccel;
+    lowerMotorSimRPM += Math.signum(lowerMotor.getClosedLoopController().getSetpoint()-lowerMotorSimRPM) * 0.02 * Constants.ShooterConstants.Shooter_MaxAccel;
+    feederMotorSimRPM = feederMotor.getClosedLoopController().getSetpoint();
   }
 
 }

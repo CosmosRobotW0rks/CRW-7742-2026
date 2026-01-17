@@ -8,6 +8,8 @@ import frc.robot.Constants.OperatorConstants;
 //import frc.robot.drivetrain.VisionSubsystem;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
+import frc.robot.shooter.ShooterSubsystem;
+import frc.robot.utils.Logging;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
@@ -21,11 +23,19 @@ public class RobotContainer {
 
   private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
-  private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private final SwerveSubsystem swerveSubsystem;
   //private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
+  private final ShooterSubsystem shooterSubsystem;
+
   public RobotContainer() {
+    swerveSubsystem = new SwerveSubsystem();
+    shooterSubsystem = new ShooterSubsystem();
+    
     configureBindings();
+
+    Logging.infoMsg("Init Complete","Initialized subsystems");
+    
   }
 
   private void configureBindings() {
@@ -39,7 +49,9 @@ public class RobotContainer {
         () -> -joystick.getLeftX(),
         () -> -joystick.getRightX()));
 
-    joystick.a().whileTrue(getAutonomousCommand());
+    joystick.a().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
+
+    joystick.b().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());
          
     
     
