@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 public class ShooterCalibration {
 
-    InterpolatingTreeMap<Double, Double> interpolatingMap = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(),
+    private InterpolatingTreeMap<Double, Double> interpolatingMap = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(),
             Interpolator.forDouble());
 
     private HashMap<Double, Double> measurements = new HashMap<Double, Double>();
@@ -31,6 +31,10 @@ public class ShooterCalibration {
 
     public ShooterCalibration() {
         
+    }
+
+    public double getRPMForDistance(double distance) {
+        return interpolatingMap.get(distance);
     }
 
     public void addMeasurement(double distance, double rpm) {

@@ -31,6 +31,7 @@ public class Logging {
         if(description == null) description = title;
 
         CoreElastic.Notification notification = new CoreElastic.Notification(CoreElastic.NotificationLevel.INFO, title,description);
+        notification.setDisplayTimeMillis(5000);
         CoreElastic.sendNotification(notification);
 
         System.out.println("[INFO] " + title + ": " + description);
@@ -41,6 +42,7 @@ public class Logging {
         if(description == null) description = title;
 
         CoreElastic.Notification notification = new CoreElastic.Notification(CoreElastic.NotificationLevel.WARNING, title,description);
+        notification.setDisplayTimeMillis(5000);
         CoreElastic.sendNotification(notification);
 
         DriverStation.reportWarning(description, false);
@@ -53,6 +55,7 @@ public class Logging {
         if(description == null) description = title;
         
         CoreElastic.Notification notification = new CoreElastic.Notification(CoreElastic.NotificationLevel.ERROR, title,description);
+        notification.setDisplayTimeMillis(5000);
         CoreElastic.sendNotification(notification);
 
         DriverStation.reportError(description, false);
