@@ -15,6 +15,14 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class ShooterConstants {
+    public static final int UpperShooterMotorCANID = 35;
+    public static final int LowerShooterMotorCANID = 11;
+    
+    public static final int FeederMotorCANID = 0;
+  }
+
+
   public static class PhysicalProperties 
   {
     public static final double RobotMassKg = 54; // kg
