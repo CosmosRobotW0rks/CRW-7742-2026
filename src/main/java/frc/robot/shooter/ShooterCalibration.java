@@ -34,7 +34,7 @@ public class ShooterCalibration {
     }
 
     public void addMeasurement(double distance, double rpm) {
-        measurements.putIfAbsent(distance, rpm);
+        measurements.put(distance, rpm);
         interpolatingMap.put(distance, rpm);
     }
 
@@ -52,6 +52,9 @@ public class ShooterCalibration {
             mapper.writerWithDefaultPrettyPrinter()
                     .writeValue(file, calib);
 
+            this.slot = slot;
+            this.description = description;
+            
             return true;
 
         } catch (Exception ex) {

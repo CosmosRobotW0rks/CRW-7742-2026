@@ -16,10 +16,20 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static final int UpperShooterMotorCANID = 35;
-    public static final int LowerShooterMotorCANID = 11;
-    
     public static final int FeederMotorCANID = 0;
+    public static final double FeederPF_P = 0;
+    public static final double FeederPF_F = 0;
+
+    public static final int UpperShooterMotorCANID = 35;
+    public static final double UpperShooterPF_P = 0;
+    public static final double UpperShooterPF_F = 0;
+    
+    public static final int LowerShooterMotorCANID = 11;
+    public static final double LowerShooterPF_P = 0;
+    public static final double LowerShooterPF_F = 0;
+
+    public static final double Shooter_MaxAccel = 4000;
+    public static final double Feeder_TargetRPM = 100;
   }
 
 
