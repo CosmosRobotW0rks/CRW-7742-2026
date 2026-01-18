@@ -8,6 +8,8 @@ import frc.robot.Constants.OperatorConstants;
 //import frc.robot.drivetrain.VisionSubsystem;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
+import frc.robot.shooter.ShooterCalibration;
+import frc.robot.shooter.ShooterCalibratorSubsystem;
 import frc.robot.shooter.ShooterSubsystem;
 import frc.robot.utils.Logging;
 
@@ -27,10 +29,12 @@ public class RobotContainer {
   //private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   private final ShooterSubsystem shooterSubsystem;
+  private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
 
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem();
     shooterSubsystem = new ShooterSubsystem();
+    shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
     
     configureBindings();
 
@@ -49,9 +53,13 @@ public class RobotContainer {
         () -> -joystick.getLeftX(),
         () -> -joystick.getRightX()));
 
-    joystick.a().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
 
-    joystick.b().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());
+    joystick.povDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
+    joystick.povUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
+
+    joystick.b().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
+
+    joystick.a().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());
          
     
     

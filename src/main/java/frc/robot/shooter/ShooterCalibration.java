@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.utils.InterpolatingTreeMap;
 
 public class ShooterCalibration {
 
@@ -37,9 +37,17 @@ public class ShooterCalibration {
         return interpolatingMap.get(distance);
     }
 
+    public int getMeasurementCount() {
+        return measurements.size();
+    }
+    
     public void addMeasurement(double distance, double rpm) {
         measurements.put(distance, rpm);
         interpolatingMap.put(distance, rpm);
+    }
+
+    public boolean removeMeasurement(double distance, double rpm) {
+        return measurements.remove(distance, rpm) && interpolatingMap.remove(distance, rpm);
     }
 
     public boolean save(int slot, String description) {
@@ -94,18 +102,19 @@ public class ShooterCalibration {
 
             ShooterCalibration calib = new ShooterCalibration();
 
-            ShooterCalib calibObj = mapper.readValue(file, ShooterCalib.class);
+            ShooterCalib slotData = mapper.readValue(file, ShooterCalib.class);
 
-            calib.measurements = calibObj.knownValues;
+            Double[] measurementKeys = slotData.knownValues.keySet().toArray(new Double[0]);
 
-            Double[] measurementKeys = calib.measurements.keySet().toArray(new Double[0]);
-
-            for(int i = 0; i<calib.measurements.size(); i++)
+            for(int i = 0; i<slotData.knownValues.size(); i++)
             {
-                calib.interpolatingMap.put(measurementKeys[i], calib.measurements.get(measurementKeys[i]));
+                Double distance = measurementKeys[i];
+                Double rpm = slotData.knownValues.get(distance);
+                
+                calib.addMeasurement(distance, rpm);
             }
 
-            calib.description = calibObj.description;
+            calib.description = slotData.description;
             calib.slot = slot;
 
             return calib;

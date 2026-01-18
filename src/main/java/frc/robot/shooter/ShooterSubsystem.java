@@ -59,6 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private double upperMotorTargetRPM = 0;
   private double lowerMotorTargetRPM = 0;
+  private boolean calibrating = false;
 
   private double distanceToHub = 0;
 
@@ -136,6 +137,9 @@ public class ShooterSubsystem extends SubsystemBase {
           setLowerMotorRPM(lowerMotorTargetRPM);
         },
         () -> {
+          
+          upperMotorSimRPM = 0;
+          lowerMotorSimRPM = 0;
           setUpperMotorRPM(0);
           setLowerMotorRPM(0);
         });
@@ -147,21 +151,40 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> toggleFeeder(false));
   }
 
-  // UTILS
-  public void refreshShooterTargetRPMs()
+
+  // CALIB SUBSYS CONNECTION
+
+  public void setCalibrationRPM(double rpm)
   {
+    calibrating = true;
+
+    upperMotorTargetRPM = rpm;
+    lowerMotorTargetRPM = rpm;
+  }
+
+  public void exitCalibrationMode()
+  {
+    calibrating = false;
+    refreshShooterTargetRPMs();
+  }
+
+
+  // UTILS
+  private void refreshShooterTargetRPMs()
+  {
+    if(calibrating) return;
+
+
     double distance = getDistanceToHub();
 
     if(calibration == null) return;
-    
+
     double rpm = calibration.getRPMForDistance(distance);
 
     upperMotorTargetRPM = rpm;
     lowerMotorTargetRPM = rpm;
   }
 
-
-  // HELPERS
   public double getDistanceToHub()
   {
     ShooterDistCalcMode mode = distCalcModeChooser.getSelected();
@@ -236,8 +259,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
+    if(Math.abs(getUpperMotorRPM() - upperMotorTargetRPM) > Constants.ShooterConstants.RPM_Tolerance)
     upperMotorSimRPM += Math.signum(upperMotor.getClosedLoopController().getSetpoint()-upperMotorSimRPM) * 0.02 * Constants.ShooterConstants.Shooter_MaxAccel;
+
+    if(Math.abs(getLowerMotorRPM() - lowerMotorTargetRPM) > Constants.ShooterConstants.RPM_Tolerance)
     lowerMotorSimRPM += Math.signum(lowerMotor.getClosedLoopController().getSetpoint()-lowerMotorSimRPM) * 0.02 * Constants.ShooterConstants.Shooter_MaxAccel;
+
     feederMotorSimRPM = feederMotor.getClosedLoopController().getSetpoint();
   }
 

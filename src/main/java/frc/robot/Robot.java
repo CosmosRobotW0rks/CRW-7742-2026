@@ -36,6 +36,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+    WebServer.start(5801, Filesystem.getLaunchDirectory().getPath());
 
     PathfindingCommand.warmupCommand().schedule();
   }
