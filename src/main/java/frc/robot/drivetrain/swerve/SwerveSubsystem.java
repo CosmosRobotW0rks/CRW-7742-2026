@@ -40,6 +40,7 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
 import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 import frc.robot.utils.AllianceUtils;
+import frc.robot.utils.Logging;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -88,7 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // Modules Init
         boolean moduleInitSuc = initModules();
         if (!moduleInitSuc) {
-            DriverStation.reportError("Failed to initialize Swerve Subsystem", false);
+            Logging.stickyError("Failed to initialize Swerve Subsystem", null);
         }
 
         // Odom Init
@@ -285,15 +286,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private boolean initModules() {
 
-        if (isolatedModule != null)
-            DriverStation.reportWarning("WARNING!!! SWERVE MODULE ISOLATED: " + isolatedModule.name(), false);
+        if (isolatedModule != null) Logging.stickyWarning("Swerve Module Isolated: " + isolatedModule.name(), null);
+
 
         for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
 
             boolean suc = initModule(location);
 
             if (!suc) {
-                DriverStation.reportError("Failed to initialize Swerve Module: " + location.name(), false);
+                Logging.stickyError("Failed to initialize Swerve Module: " + location.name(), null);
                 return false;
             }
         }
