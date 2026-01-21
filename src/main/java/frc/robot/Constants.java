@@ -56,12 +56,14 @@ public final class Constants {
     public static final Rotation2d RobotStartAngle = Rotation2d.fromDegrees(0);
         
 
-    public static final double MaxDriveSpeed = 4; // m/s
+    public static final double MaxDriveSpeed = 3;
+    
+    // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s
 
     // Calculated for each axis, seperately
-    public static final double MaxDriveAccel = 8; // m/s^2
-    public static final double MaxDriveDeccel = 20; // m/s^2
+    public static final double MaxDriveAccel = 20; // m/s^2
+    public static final double MaxDriveDeccel = 30; // m/s^2
 
     public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s
     public static final double MaxRotAccel = Math.PI * 2 * 6; // rad/s^2
@@ -80,7 +82,7 @@ public final class Constants {
     }
 
     public static final double TrackWidthM = 0.63;
-    public static final double GearRatio_Angle = 287 / 11;
+    public static final double GearRatio_Angle = 287.0 / 11.0;
     public static final Map<DriveGearRatioOption, Double> GearRatioMap_Drive = Map.of(
         DriveGearRatioOption.R1, 7.03,
         DriveGearRatioOption.R2, 6.03,
@@ -101,16 +103,16 @@ public final class Constants {
     public static final double DrivePeakVoltage = 12;
 
     public static final Map<SwerveModuleLocation, Integer> AngleCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 16,
-        SwerveModuleLocation.FRONT_RIGHT, 2,
-        SwerveModuleLocation.BACK_LEFT, 3,
-        SwerveModuleLocation.BACK_RIGHT, 4);
+        SwerveModuleLocation.FRONT_LEFT, 12,
+        SwerveModuleLocation.FRONT_RIGHT, 14,
+        SwerveModuleLocation.BACK_LEFT, 16,
+        SwerveModuleLocation.BACK_RIGHT, 18);
 
     public static final Map<SwerveModuleLocation, Integer> DriveCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 15,
-        SwerveModuleLocation.FRONT_RIGHT, 6,
-        SwerveModuleLocation.BACK_LEFT, 7,
-        SwerveModuleLocation.BACK_RIGHT, 8);
+        SwerveModuleLocation.FRONT_LEFT, 11,
+        SwerveModuleLocation.FRONT_RIGHT, 13,
+        SwerveModuleLocation.BACK_LEFT, 15,
+        SwerveModuleLocation.BACK_RIGHT, 17);
 
     // Absolute encoder not implemented yet
     public static final int ABSENCPORTID_FL = -1;
