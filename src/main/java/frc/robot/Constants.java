@@ -46,7 +46,7 @@ public final class Constants {
   }
 
   public static class AutoConstants {   
-    public static final double AutoMaxDriveSpeed = 4; // m/s
+    public static final double AutoMaxDriveSpeed = 2; // m/s
     public static final double AutoMaxCurrent = 60; // Amps
 
   }
@@ -56,13 +56,13 @@ public final class Constants {
     public static final Rotation2d RobotStartAngle = Rotation2d.fromDegrees(0);
         
 
-    public static final double MaxDriveSpeed = 3;
+    public static final double MaxDriveSpeed = 1.8;
     
     // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s
 
     // Calculated for each axis, seperately
-    public static final double MaxDriveAccel = 20; // m/s^2
+    public static final double MaxDriveAccel = 5; // m/s^2
     public static final double MaxDriveDeccel = 30; // m/s^2
 
     public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s

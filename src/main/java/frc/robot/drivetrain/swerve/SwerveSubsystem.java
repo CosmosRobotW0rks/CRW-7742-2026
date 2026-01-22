@@ -224,6 +224,13 @@ public class SwerveSubsystem extends SubsystemBase {
         setTargetSpeeds(cs);
     }
 
+    // Vision
+
+    public void setRobotPose(Pose2d p2d)
+    {
+        odometry.resetPose(p2d);
+    }
+
     // Periodic (20ms!!)
     @Override
     public void periodic() {
