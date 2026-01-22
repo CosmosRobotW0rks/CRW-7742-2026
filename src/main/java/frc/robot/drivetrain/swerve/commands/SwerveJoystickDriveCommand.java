@@ -69,7 +69,7 @@ public class SwerveJoystickDriveCommand extends Command {
             zpercent * DriveConstants.MaxRotSpeed
         };
 
-        applyFilter(targetSpeeds, new double[]{focs.vxMetersPerSecond, focs.vyMetersPerSecond, focs.omegaRadiansPerSecond});
+        //applyFilter(targetSpeeds, new double[]{focs.vxMetersPerSecond, focs.vyMetersPerSecond, focs.omegaRadiansPerSecond});
 
         
         if(xZero && yZero && zZero && Arrays.stream(targetSpeeds).allMatch(x -> x == 0)) return;
@@ -78,11 +78,9 @@ public class SwerveJoystickDriveCommand extends Command {
         yZero = targetSpeeds[1] == 0;
         zZero = targetSpeeds[2] == 0;
 
-        ChassisSpeeds targetfocs = new ChassisSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
-
         //SmartDashboard.putNumberArray("CommOutArr", new double[] {targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]});
 
-        swerve.setTargetFieldRelativeSpeeds(targetfocs);
+        swerve.setTargetFieldRelativeSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
     }
 
     void applyFilter(double[] targetSpeeds, double[] prevSpeeds)

@@ -101,10 +101,10 @@ public class SwerveSubsystem extends SubsystemBase {
         // PathPlanner Init
         ModuleConfig ppModuleConfig = new ModuleConfig(
             SwerveConstants.WheelRadiusM,
-            AutoConstants.AutoMaxDriveSpeed, 
+            AutoConstants.PathFollow_maxSpeedMPS, 
             PhysicalProperties.wheelCOF,
             DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
-            AutoConstants.AutoMaxCurrent,
+            AutoConstants.PathFollow_maxCurrent,
             8);
 
         RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI, ppModuleConfig,  SwerveConstants.TrackWidthM);
@@ -115,8 +115,8 @@ public class SwerveSubsystem extends SubsystemBase {
             this::getRobotRelativeSpeeds,
             (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
             new PPHolonomicDriveController(
-                    new PIDConstants(5.0, 0.0, 0.0),
-                    new PIDConstants(5.0, 0.0, 0.0)
+                    AutoConstants.PathFollow_Translation_PID,
+                    AutoConstants.PathFollow_Rotation_PID
             ),
             ppConfig, 
             () -> AllianceUtils.isRedAlliance(), 
@@ -158,7 +158,7 @@ public class SwerveSubsystem extends SubsystemBase {
         if(Robot.isSimulation())
             return Rotation2d.fromRadians(simulatedGyroAngleRad);
         else
-            return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + DriveConstants.RobotStartAngle.getDegrees());
+            return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading());
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -209,13 +209,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Setters
 
-    public void setTargetFieldRelativeSpeeds(ChassisSpeeds cs) {
-        var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                cs.vxMetersPerSecond,
-                cs.vyMetersPerSecond,
-                cs.omegaRadiansPerSecond,
-                getRobotHeading());
-
+    public void setTargetFieldRelativeSpeeds(double xMPS, double yMPS, double omegaRPS) {
+        var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMPS, yMPS, omegaRPS, getRobotHeading());
         setTargetSpeeds(robotRelativeSpeeds);
     }
 

@@ -26,7 +26,7 @@ public class VisionSubsystem extends SubsystemBase {
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5),
-            new Rotation3d(0, -45, 0));
+            new Rotation3d(0, -65, 0));
 
     private PhotonPoseEstimator estimator = new PhotonPoseEstimator(kTagLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);

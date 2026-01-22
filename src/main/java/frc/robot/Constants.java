@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.Map;
 
+import com.pathplanner.lib.config.PIDConstants;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
@@ -46,17 +48,28 @@ public final class Constants {
   }
 
   public static class AutoConstants {   
-    public static final double AutoMaxDriveSpeed = 2; // m/s
-    public static final double AutoMaxCurrent = 60; // Amps
+    public static final double PathFollow_maxSpeedMPS = 2; // m/s
+    public static final double PathFollow_maxCurrent = 60; // Amps
+    public static final PIDConstants PathFollow_Translation_PID = new PIDConstants(5);
+    public static final PIDConstants PathFollow_Rotation_PID = new PIDConstants(5);
+
+    public static final double       ApproachPose_Default_maxSpeedMPS = 4;
+    public static final Rotation2d   ApproachPose_Default_maxAngVelocity = Rotation2d.fromDegrees(360*2);
+    public static final Rotation2d   ApproachPose_Default_maxAngAccel = Rotation2d.fromDegrees(720*1000);
+
+    public static final double       ApproachPose_Default_translationErrorThresholdM = 0.025;
+    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(2);
+
+    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4);
+    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(4);
+
 
   }
 
   public static class DriveConstants {
     // TODO -- Shuffleboard selection ?
-    public static final Rotation2d RobotStartAngle = Rotation2d.fromDegrees(0);
-        
 
-    public static final double MaxDriveSpeed = 1.8;
+    public static final double MaxDriveSpeed = 3.5;
     
     // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s

@@ -5,6 +5,9 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.auto.AutoHelper;
+import frc.robot.auto.autoCommands.ApproachPoseCommand;
+import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
 import frc.robot.drivetrain.VisionSubsystem;
 //import frc.robot.drivetrain.VisionSubsystem;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
@@ -44,6 +47,7 @@ public class RobotContainer {
   private final ShooterSubsystem shooterSubsystem;
   private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
 */
+
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem();
 
@@ -70,7 +74,9 @@ public class RobotContainer {
         () -> -joystick.getLeftX(),
         () -> -joystick.getRightX()));
 
-    joystick.a().whileTrue(new PathPlannerAuto("TESTAUTO").finallyDo(() -> swerveSubsystem.Stop()));
+    joystick.a().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
+
+    joystick.b().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
 
 /* 
     joystick.povDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
