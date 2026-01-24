@@ -15,6 +15,11 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final boolean isDualsense = false;
+   
+    public static final int DualSenseAxisLeftX = 0;
+    public static final int DualSenseAxisLeftY = 1;
+    public static final int DualSenseAxisRightX = 2;
   }
 
   public static class ShooterConstants {
@@ -83,9 +88,10 @@ public final class Constants {
     public static final double MaxRotDeccel = Math.PI * 2 * 6; // rad/s^2
     
 
-    public static final double JOYDeadzone_X = 0.1;
-    public static final double JOYDeadzone_Y = 0.1;
-    public static final double JOYDeadzone_Rot = 0.1;
+    public static final double JOYDeadzone_X = 0.10;
+    public static final double JOYDeadzone_Y = 0.10;
+    public static final double JOYDeadzone_Rot = 0.20;
+    public static final boolean SquareInputs = true;
   }
 
   public static class SwerveConstants {

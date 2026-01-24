@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
 
 public class SwerveJoystickDriveCommand extends Command {
@@ -49,13 +50,34 @@ public class SwerveJoystickDriveCommand extends Command {
     
     @Override
     public void execute() {
-        double xpercent = suppX.get();
-        double ypercent = suppY.get();
-        double zpercent = suppZ.get();
+        double xpercent;
+        double ypercent;
+        double zpercent;
+
+        if (OperatorConstants.isDualsense) {
+            xpercent = -joy.getHID().getRawAxis(OperatorConstants.DualSenseAxisLeftY);
+            ypercent = -joy.getHID().getRawAxis(OperatorConstants.DualSenseAxisLeftX);
+            
+            zpercent = -joy.getHID().getRawAxis(OperatorConstants.DualSenseAxisRightX);
+        } else {
+            xpercent = suppX.get();
+            ypercent = suppY.get();
+            zpercent = suppZ.get();
+        }
 
         xpercent = MathUtil.applyDeadband(xpercent, DriveConstants.JOYDeadzone_X);
         ypercent = MathUtil.applyDeadband(ypercent, DriveConstants.JOYDeadzone_Y);
         zpercent = MathUtil.applyDeadband(zpercent, DriveConstants.JOYDeadzone_Rot);
+
+        if (DriveConstants.SquareInputs) {
+            xpercent = squarePreserveSign(xpercent);
+            ypercent = squarePreserveSign(ypercent);
+            zpercent = squarePreserveSign(zpercent);
+        }
+
+        if (Math.abs(zpercent) < DriveConstants.JOYDeadzone_Rot) {
+            zpercent = 0.0;
+        }
 
         xpercent = MathUtil.clamp(xpercent, -1, 1);
         ypercent = MathUtil.clamp(ypercent, -1, 1);
@@ -93,5 +115,9 @@ public class SwerveJoystickDriveCommand extends Command {
             if(prevSpeeds[i] < targetSpeeds[i]) targetSpeeds[i] = incSpeed;
             else targetSpeeds[i] = descSpeed;
         }
+    }
+
+    private static double squarePreserveSign(double value) {
+        return Math.copySign(value * value, value);
     }
 }
