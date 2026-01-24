@@ -15,7 +15,7 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-    public static final boolean isDualsense = false;
+    public static final boolean isDualsense = true;
    
     public static final int DualSenseAxisLeftX = 0;
     public static final int DualSenseAxisLeftY = 1;

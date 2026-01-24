@@ -9,8 +9,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.input.DriveInputSelector;
 
 public class SwerveJoystickDriveCommand extends Command {
 
@@ -27,8 +27,7 @@ public class SwerveJoystickDriveCommand extends Command {
     };
 
     final SwerveSubsystem swerve;
-    final Supplier<Double> suppX, suppY, suppZ;
-    final CommandXboxController joy;
+    final DriveInputSelector driveInput;
 
     boolean xZero, yZero, zZero = true;
 
@@ -40,30 +39,17 @@ public class SwerveJoystickDriveCommand extends Command {
         Supplier<Double> speedSuppRot) {
 
         this.swerve = swerve;
-        this.joy = joy;
-        this.suppX = speedSuppX;
-        this.suppY = speedSuppY;
-        this.suppZ = speedSuppRot;
+        this.driveInput = new DriveInputSelector(joy, speedSuppX, speedSuppY, speedSuppRot);
 
         addRequirements(this.swerve);
     }
     
     @Override
     public void execute() {
-        double xpercent;
-        double ypercent;
-        double zpercent;
-
-        if (OperatorConstants.isDualsense) {
-            xpercent = -joy.getHID().getRawAxis(OperatorConstants.DualSenseAxisLeftY);
-            ypercent = -joy.getHID().getRawAxis(OperatorConstants.DualSenseAxisLeftX);
-            
-            zpercent = -joy.getHID().getRawAxis(OperatorConstants.DualSenseAxisRightX);
-        } else {
-            xpercent = suppX.get();
-            ypercent = suppY.get();
-            zpercent = suppZ.get();
-        }
+        double[] percents = driveInput.getDrivePercents();
+        double xpercent = percents[0];
+        double ypercent = percents[1];
+        double zpercent = percents[2];
 
         xpercent = MathUtil.applyDeadband(xpercent, DriveConstants.JOYDeadzone_X);
         ypercent = MathUtil.applyDeadband(ypercent, DriveConstants.JOYDeadzone_Y);
