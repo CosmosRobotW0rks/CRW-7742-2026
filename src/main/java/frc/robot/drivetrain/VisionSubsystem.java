@@ -23,7 +23,7 @@ public class VisionSubsystem extends SubsystemBase {
     PhotonCamera camera = new PhotonCamera("maincam");
 
     // TODO: Use 2026 field
-    public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5),
             new Rotation3d(0, -65, 0));
