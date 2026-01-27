@@ -53,7 +53,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     Field2d fieldToPublish = new Field2d();
 
-
     // For testing individual modules
     private final SwerveModuleLocation isolatedModule = null;
 
@@ -69,10 +68,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private Map<SwerveModuleLocation, SwerveModule> modules = new java.util.EnumMap<>(SwerveModuleLocation.class);
 
     private final Translation2d[] moduleOffsets = {
-    new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
-    new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
-    new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
-    new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
+            new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
+            new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
+            new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
+            new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
     };
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleOffsets);
@@ -100,28 +99,28 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // PathPlanner Init
         ModuleConfig ppModuleConfig = new ModuleConfig(
-            SwerveConstants.WheelRadiusM,
-            AutoConstants.PathFollow_maxSpeedMPS, 
-            PhysicalProperties.wheelCOF,
-            DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
-            AutoConstants.PathFollow_maxCurrent,
-            8);
+                SwerveConstants.WheelRadiusM,
+                AutoConstants.PathFollow_maxSpeedMPS,
+                PhysicalProperties.wheelCOF,
+                DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
+                AutoConstants.PathFollow_maxCurrent,
+                8);
 
-        RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI, ppModuleConfig,  SwerveConstants.TrackWidthM);
+        RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI,
+                ppModuleConfig, SwerveConstants.TrackWidthM);
 
         AutoBuilder.configure(
-            this::getRobotPose,
-            this::resetRobotPose, 
-            this::getRobotRelativeSpeeds,
-            (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
-            new PPHolonomicDriveController(
-                    AutoConstants.PathFollow_Translation_PID,
-                    AutoConstants.PathFollow_Rotation_PID
-            ),
-            ppConfig, 
-            () -> AllianceUtils.isRedAlliance(), 
-            this);
-        
+                this::getRobotPose,
+                this::resetRobotPose,
+                this::getRobotRelativeSpeeds,
+                (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
+                new PPHolonomicDriveController(
+                        AutoConstants.PathFollow_Translation_PID,
+                        AutoConstants.PathFollow_Rotation_PID),
+                ppConfig,
+                () -> AllianceUtils.isRedAlliance(),
+                this);
+
         // NT Publishers Init
         SmartDashboard.putData("ToggleOdometry", toggleOdometry());
         SmartDashboard.putData("Field", fieldToPublish);
@@ -134,14 +133,13 @@ public class SwerveSubsystem extends SubsystemBase {
             modules.values().forEach(module -> module.stop());
         });
     }
-    
+
     public void Stop() {
         targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
         modules.values().forEach(module -> module.stop());
     }
 
-    public Command toggleOdometry()
-    {
+    public Command toggleOdometry() {
         return runOnce(() -> {
             odometryEnabled = !odometryEnabled;
         });
@@ -155,7 +153,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public Rotation2d getRobotHeading() {
         // TODO: Make sure returned value is CCW positive
 
-        if(Robot.isSimulation())
+        if (Robot.isSimulation())
             return Rotation2d.fromRadians(simulatedGyroAngleRad);
         else
             return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading());
@@ -221,9 +219,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Vision
 
-    public void setRobotPose(Pose2d p2d)
-    {
-        odometry.resetPose(p2d);
+    public void setRobotPose(Pose2d p2d) {
+        odometry.resetPosition(getRobotHeading(), getModulePositions(), p2d);
     }
 
     // Periodic (20ms!!)
@@ -232,7 +229,10 @@ public class SwerveSubsystem extends SubsystemBase {
         applyChassisSpeeds(targetChassisSpeeds);
 
         // Odometry
-        if(odometryEnabled) odometry.update(getRobotHeading(), getModulePositions());
+        resetWithStartPose();;
+
+        if (odometryEnabled)
+            odometry.update(getRobotHeading(), getModulePositions()); 
 
         // Publishing
         swerveStatePublisher.set(getModuleStates());
@@ -267,7 +267,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private void applyChassisSpeeds(ChassisSpeeds cs) {
 
-        //SmartDashboard.putNumberArray("AppliedCS", new double[] {cs.vxMetersPerSecond, cs.vyMetersPerSecond, cs.omegaRadiansPerSecond});
+        // SmartDashboard.putNumberArray("AppliedCS", new double[]
+        // {cs.vxMetersPerSecond, cs.vyMetersPerSecond, cs.omegaRadiansPerSecond});
 
         var states = kinematics.toSwerveModuleStates(cs);
 
@@ -288,8 +289,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private boolean initModules() {
 
-        if (isolatedModule != null) Logging.stickyWarning("Swerve Module Isolated: " + isolatedModule.name(), null);
-
+        if (isolatedModule != null)
+            Logging.stickyWarning("Swerve Module Isolated: " + isolatedModule.name(), null);
 
         for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
 
@@ -357,6 +358,23 @@ public class SwerveSubsystem extends SubsystemBase {
         modules.put(location, module);
 
         return true;
+    }
+
+    void resetWithStartPose() {
+        if (!DriverStation.isDisabled())
+            return;
+
+        Pose2d pose = Constants.DriveConstants.defaultStartPose;
+
+        boolean isRed = AllianceUtils.isRedAlliance();
+
+        if (isRed)
+        pose = AllianceUtils.FlipPose2d(pose);
+
+        odometry.resetPosition(getRobotHeading(), getModulePositions(), pose);
+
+        
+
     }
 
 }

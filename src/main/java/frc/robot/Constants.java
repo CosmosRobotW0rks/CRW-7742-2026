@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
@@ -72,6 +73,8 @@ public final class Constants {
   }
 
   public static class DriveConstants {
+    public static final Pose2d defaultStartPose = new Pose2d(2,1.5, Rotation2d.kZero);
+
     // TODO -- Shuffleboard selection ?
 
     public static final double MaxDriveSpeed = 3.5;
