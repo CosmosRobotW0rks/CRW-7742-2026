@@ -4,10 +4,11 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.auto.AutoHelper;
 import frc.robot.auto.autoCommands.ApproachPoseCommand;
 import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
+import frc.robot.controls.CommandJoystick;
+import frc.robot.controls.JoystickOptions;
 import frc.robot.drivetrain.VisionSubsystem;
 //import frc.robot.drivetrain.VisionSubsystem;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
@@ -34,11 +35,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
 
-  private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.DualSense);
 
   private final SwerveSubsystem swerveSubsystem;
   private final VisionSubsystem visionSubsystem;
@@ -69,22 +69,19 @@ public class RobotContainer {
     
     swerveSubsystem.setDefaultCommand(new SwerveJoystickDriveCommand(
         swerveSubsystem,
-        joystick,
-        () -> -joystick.getLeftY(),
-        () -> -joystick.getLeftX(),
-        () -> -joystick.getRightX()));
+        driver));
 
-    joystick.a().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
+    driver.getBtnDown().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
 
-    joystick.b().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
+    driver.getBtnRight().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
 
 /* 
-    joystick.povDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
-    joystick.povUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
+    driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
+    driver.getPovUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
 
-    joystick.b().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
+    driver.getBtnRight().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
 
-    joystick.a().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());   
+    driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());   
     */
     
   }
