@@ -91,9 +91,9 @@ public final class Constants {
     public static final double MaxRotDeccel = Math.PI * 2 * 6; // rad/s^2
     
 
-    public static final double JOYDeadzone_X = 0.10;
-    public static final double JOYDeadzone_Y = 0.10;
-    public static final double JOYDeadzone_Rot = 0.20;
+    public static final double JOYDeadzone_X = 0.05;
+    public static final double JOYDeadzone_Y = 0.05;
+    public static final double JOYDeadzone_Rot = 0.05;
     public static final boolean SquareInputs = true;
   }
 
