@@ -16,9 +16,6 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-    public static final String OS_NAME = System.getProperty("os.name", "").toLowerCase();
-    public static final boolean isMacOS = OS_NAME.contains("mac");
-    public static final boolean isWindows = OS_NAME.contains("win");
   }
 
   public static class ShooterConstants {
