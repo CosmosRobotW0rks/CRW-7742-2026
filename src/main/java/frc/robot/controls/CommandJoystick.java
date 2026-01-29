@@ -87,13 +87,11 @@ public class CommandJoystick extends CommandGenericHID {
     }
 
     public double getL2() {
-        return AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(
-            joystick.getRawAxis(map.axisL2));
+        return normalizeTrigger(joystick.getRawAxis(map.axisL2));
     }
 
     public double getR2() {
-        return AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(
-            joystick.getRawAxis(map.axisR2));
+        return normalizeTrigger(joystick.getRawAxis(map.axisR2));
     }
 
     public Trigger getL1() {
@@ -189,8 +187,8 @@ public class CommandJoystick extends CommandGenericHID {
         leftYRawPub.set(leftYRaw);
         rightXRawPub.set(rightXRaw);
         rightYRawPub.set(rightYRaw);
-        l2Pub.set(AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(l2Raw));
-        r2Pub.set(AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(r2Raw));
+        l2Pub.set(normalizeTrigger(l2Raw));
+        r2Pub.set(normalizeTrigger(r2Raw));
         l2RawPub.set(l2Raw);
         r2RawPub.set(r2Raw);
         btnDownPub.set(joystick.getRawButton(map.buttonDown));
@@ -210,6 +208,13 @@ public class CommandJoystick extends CommandGenericHID {
         double processed = AxisUtil.applyDeadband(value, deadband);
         processed = AxisUtil.applyExpo(processed, STICK_EXPO);
         return AxisUtil.clamp(processed, -1.0, 1.0);
+    }
+
+    private double normalizeTrigger(double value) {
+        if (options == JoystickOptions.DualSense) {
+            return AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(value);
+        }
+        return AxisUtil.clamp(value, 0.0, 1.0);
     }
 
     private static final class MapConfig {
