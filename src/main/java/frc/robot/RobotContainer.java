@@ -19,6 +19,7 @@ import frc.robot.shooter.ShooterSubsystem;
 import frc.robot.utils.Logging;
 
 import java.util.Set;
+import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -38,7 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 public class RobotContainer {
 
-  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.DualSense);
+  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.Logitech);
 
   private final SwerveSubsystem swerveSubsystem;
   private final VisionSubsystem visionSubsystem;
@@ -69,7 +70,10 @@ public class RobotContainer {
     
     swerveSubsystem.setDefaultCommand(new SwerveJoystickDriveCommand(
         swerveSubsystem,
-        driver));
+        () -> driver.getLeftY(),
+        () -> -driver.getLeftX(),
+        () -> -driver.getRightX()
+        ));
 
     driver.getBtnDown().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
 
