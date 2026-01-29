@@ -5,10 +5,10 @@ CommandJoystick:
 - getLeftY(): sol stick Y ekseni, yukari +1 asagi -1
 - getRightX(): sag stick X ekseni, -1..1
 - getRightY(): sag stick Y ekseni, yukari +1 asagi -1
-- getL2(): L2 analog trigger, 0..1
-- getR2(): R2 analog trigger, 0..1
-- getL1(): L1 dijital buton Trigger
-- getR1(): R1 dijital buton Trigger
+- getL2(): PS5 L2 / Xbox LT analog, 0..1
+- getR2(): PS5 R2 / Xbox RT analog, 0..1
+- getL1(): PS5 L1 / Xbox LB dijital buton Trigger
+- getR1(): PS5 R1 / Xbox RB dijital buton Trigger
 - getBtnDown(): face button alt (A / X)
 - getBtnUp(): face button ust (Y / Triangle)
 - getBtnLeft(): face button sol (X / Square)

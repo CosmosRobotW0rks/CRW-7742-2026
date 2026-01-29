@@ -6,20 +6,20 @@ import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.controls.mapping.DualSenseMap;
-import frc.robot.controls.mapping.LogitechMap;
 import frc.robot.controls.util.AxisUtil;
 
 public class CommandJoystick extends CommandGenericHID {
     private static final double STICK_EXPO = 0.0;
 
-    private final Joystick joystick;
-    private final MapConfig map;
     private final JoystickOptions options;
+    private final PS5Controller ps5Controller;
+    private final XboxController xboxController;
     private final DoublePublisher leftXPub;
     private final DoublePublisher leftYPub;
     private final DoublePublisher rightXPub;
@@ -43,9 +43,14 @@ public class CommandJoystick extends CommandGenericHID {
 
     public CommandJoystick(JoystickOptions options) {
         super(Constants.OperatorConstants.kDriverControllerPort);
-        this.joystick = new Joystick(Constants.OperatorConstants.kDriverControllerPort);
-        this.map = MapConfig.from(options);
         this.options = options;
+        if (options == JoystickOptions.DualSense) {
+            this.ps5Controller = new PS5Controller(Constants.OperatorConstants.kDriverControllerPort);
+            this.xboxController = null;
+        } else {
+            this.ps5Controller = null;
+            this.xboxController = new XboxController(Constants.OperatorConstants.kDriverControllerPort);
+        }
 
         NetworkTable table = NetworkTableInstance.getDefault().getTable("Controls/Driver");
         controllerTypePub = table.getStringTopic("ControllerType").publish();
@@ -71,51 +76,63 @@ public class CommandJoystick extends CommandGenericHID {
     }
 
     public double getLeftX() {
-        return processStickAxis(joystick.getRawAxis(map.axisLeftX), DriveConstants.JOYDeadzone_Y);
+        return processStickAxis(rawLeftX(), DriveConstants.JOYDeadzone_Y);
     }
 
     public double getLeftY() {
-        return processStickAxis(-joystick.getRawAxis(map.axisLeftY), DriveConstants.JOYDeadzone_X);
+        return processStickAxis(-rawLeftY(), DriveConstants.JOYDeadzone_X);
     }
 
     public double getRightX() {
-        return processStickAxis(joystick.getRawAxis(map.axisRightX), DriveConstants.JOYDeadzone_Rot);
+        return processStickAxis(rawRightX(), DriveConstants.JOYDeadzone_Rot);
     }
 
     public double getRightY() {
-        return processStickAxis(-joystick.getRawAxis(map.axisRightY), DriveConstants.JOYDeadzone_X);
+        return processStickAxis(-rawRightY(), DriveConstants.JOYDeadzone_X);
     }
 
     public double getL2() {
-        return normalizeTrigger(joystick.getRawAxis(map.axisL2));
+        return normalizeTrigger(rawL2());
     }
 
     public double getR2() {
-        return normalizeTrigger(joystick.getRawAxis(map.axisR2));
+        return normalizeTrigger(rawR2());
     }
 
     public Trigger getL1() {
-        return button(map.buttonL1);
+        return new Trigger(() -> isDualSense()
+            ? ps5Controller.getL1Button()
+            : xboxController.getLeftBumper());
     }
 
     public Trigger getR1() {
-        return button(map.buttonR1);
+        return new Trigger(() -> isDualSense()
+            ? ps5Controller.getR1Button()
+            : xboxController.getRightBumper());
     }
 
     public Trigger getBtnDown() {
-        return button(map.buttonDown);
+        return new Trigger(() -> isDualSense()
+            ? ps5Controller.getCrossButton()
+            : xboxController.getAButton());
     }
 
     public Trigger getBtnUp() {
-        return button(map.buttonUp);
+        return new Trigger(() -> isDualSense()
+            ? ps5Controller.getTriangleButton()
+            : xboxController.getYButton());
     }
 
     public Trigger getBtnLeft() {
-        return button(map.buttonLeft);
+        return new Trigger(() -> isDualSense()
+            ? ps5Controller.getSquareButton()
+            : xboxController.getXButton());
     }
 
     public Trigger getBtnRight() {
-        return button(map.buttonRight);
+        return new Trigger(() -> isDualSense()
+            ? ps5Controller.getCircleButton()
+            : xboxController.getBButton());
     }
 
     public Trigger getX() {
@@ -135,7 +152,7 @@ public class CommandJoystick extends CommandGenericHID {
     }
 
     public Trigger getPovCenter() {
-        return new Trigger(() -> joystick.getPOV() == -1);
+        return new Trigger(() -> getPov() == -1);
     }
 
     public Trigger getPovDown() {
@@ -171,12 +188,12 @@ public class CommandJoystick extends CommandGenericHID {
     }
 
     public void updateNetworkTables() {
-        double leftXRaw = joystick.getRawAxis(map.axisLeftX);
-        double leftYRaw = joystick.getRawAxis(map.axisLeftY);
-        double rightXRaw = joystick.getRawAxis(map.axisRightX);
-        double rightYRaw = joystick.getRawAxis(map.axisRightY);
-        double l2Raw = joystick.getRawAxis(map.axisL2);
-        double r2Raw = joystick.getRawAxis(map.axisR2);
+        double leftXRaw = rawLeftX();
+        double leftYRaw = rawLeftY();
+        double rightXRaw = rawRightX();
+        double rightYRaw = rawRightY();
+        double l2Raw = rawL2();
+        double r2Raw = rawR2();
 
         controllerTypePub.set(options.name());
         leftXPub.set(getLeftX());
@@ -191,17 +208,29 @@ public class CommandJoystick extends CommandGenericHID {
         r2Pub.set(normalizeTrigger(r2Raw));
         l2RawPub.set(l2Raw);
         r2RawPub.set(r2Raw);
-        btnDownPub.set(joystick.getRawButton(map.buttonDown));
-        btnUpPub.set(joystick.getRawButton(map.buttonUp));
-        btnLeftPub.set(joystick.getRawButton(map.buttonLeft));
-        btnRightPub.set(joystick.getRawButton(map.buttonRight));
-        l1Pub.set(joystick.getRawButton(map.buttonL1));
-        r1Pub.set(joystick.getRawButton(map.buttonR1));
-        povPub.set(joystick.getPOV());
+        btnDownPub.set(isDualSense()
+            ? ps5Controller.getCrossButton()
+            : xboxController.getAButton());
+        btnUpPub.set(isDualSense()
+            ? ps5Controller.getTriangleButton()
+            : xboxController.getYButton());
+        btnLeftPub.set(isDualSense()
+            ? ps5Controller.getSquareButton()
+            : xboxController.getXButton());
+        btnRightPub.set(isDualSense()
+            ? ps5Controller.getCircleButton()
+            : xboxController.getBButton());
+        l1Pub.set(isDualSense()
+            ? ps5Controller.getL1Button()
+            : xboxController.getLeftBumper());
+        r1Pub.set(isDualSense()
+            ? ps5Controller.getR1Button()
+            : xboxController.getRightBumper());
+        povPub.set(getPov());
     }
 
     private Trigger povAt(int angle) {
-        return new Trigger(() -> joystick.getPOV() == angle);
+        return new Trigger(() -> getPov() == angle);
     }
 
     private static double processStickAxis(double value, double deadband) {
@@ -210,87 +239,42 @@ public class CommandJoystick extends CommandGenericHID {
         return AxisUtil.clamp(processed, -1.0, 1.0);
     }
 
-    private double normalizeTrigger(double value) {
-        if (options == JoystickOptions.DualSense) {
+    private boolean isDualSense() {
+        return options == JoystickOptions.DualSense;
+    }
+
+    private int getPov() {
+        return isDualSense() ? ps5Controller.getPOV() : xboxController.getPOV();
+    }
+
+    private double rawLeftX() {
+        return isDualSense() ? ps5Controller.getLeftX() : xboxController.getLeftX();
+    }
+
+    private double rawLeftY() {
+        return isDualSense() ? ps5Controller.getLeftY() : xboxController.getLeftY();
+    }
+
+    private double rawRightX() {
+        return isDualSense() ? ps5Controller.getRightX() : xboxController.getRightX();
+    }
+
+    private double rawRightY() {
+        return isDualSense() ? ps5Controller.getRightY() : xboxController.getRightY();
+    }
+
+    private double rawL2() {
+        return isDualSense() ? ps5Controller.getL2Axis() : xboxController.getLeftTriggerAxis();
+    }
+
+    private double rawR2() {
+        return isDualSense() ? ps5Controller.getR2Axis() : xboxController.getRightTriggerAxis();
+    }
+
+    private static double normalizeTrigger(double value) {
+        if (value < 0.0) {
             return AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(value);
         }
         return AxisUtil.clamp(value, 0.0, 1.0);
-    }
-
-    private static final class MapConfig {
-        final int axisLeftX;
-        final int axisLeftY;
-        final int axisRightX;
-        final int axisRightY;
-        final int axisL2;
-        final int axisR2;
-        final int buttonL1;
-        final int buttonR1;
-        final int buttonDown;
-        final int buttonUp;
-        final int buttonLeft;
-        final int buttonRight;
-
-        private MapConfig(
-            int axisLeftX,
-            int axisLeftY,
-            int axisRightX,
-            int axisRightY,
-            int axisL2,
-            int axisR2,
-            int buttonL1,
-            int buttonR1,
-            int buttonDown,
-            int buttonUp,
-            int buttonLeft,
-            int buttonRight) {
-            this.axisLeftX = axisLeftX;
-            this.axisLeftY = axisLeftY;
-            this.axisRightX = axisRightX;
-            this.axisRightY = axisRightY;
-            this.axisL2 = axisL2;
-            this.axisR2 = axisR2;
-            this.buttonL1 = buttonL1;
-            this.buttonR1 = buttonR1;
-            this.buttonDown = buttonDown;
-            this.buttonUp = buttonUp;
-            this.buttonLeft = buttonLeft;
-            this.buttonRight = buttonRight;
-        }
-
-        static MapConfig from(JoystickOptions options) {
-            switch (options) {
-                case DualSense:
-                    return new MapConfig(
-                        DualSenseMap.AXIS_LEFT_X,
-                        DualSenseMap.AXIS_LEFT_Y,
-                        DualSenseMap.AXIS_RIGHT_X,
-                        DualSenseMap.AXIS_RIGHT_Y,
-                        DualSenseMap.AXIS_L2,
-                        DualSenseMap.AXIS_R2,
-                        DualSenseMap.BUTTON_L1,
-                        DualSenseMap.BUTTON_R1,
-                        DualSenseMap.BUTTON_DOWN,
-                        DualSenseMap.BUTTON_UP,
-                        DualSenseMap.BUTTON_LEFT,
-                        DualSenseMap.BUTTON_RIGHT);
-                case Logitech:
-                    return new MapConfig(
-                        LogitechMap.AXIS_LEFT_X,
-                        LogitechMap.AXIS_LEFT_Y,
-                        LogitechMap.AXIS_RIGHT_X,
-                        LogitechMap.AXIS_RIGHT_Y,
-                        LogitechMap.AXIS_L2,
-                        LogitechMap.AXIS_R2,
-                        LogitechMap.BUTTON_L1,
-                        LogitechMap.BUTTON_R1,
-                        LogitechMap.BUTTON_DOWN,
-                        LogitechMap.BUTTON_UP,
-                        LogitechMap.BUTTON_LEFT,
-                        LogitechMap.BUTTON_RIGHT);
-                default:
-                    throw new IllegalStateException("Unsupported controller: " + options);
-            }
-        }
     }
 }

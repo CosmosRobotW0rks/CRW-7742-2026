@@ -39,7 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 public class RobotContainer {
 
-  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.Logitech);
+  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.DualSense);
 
   private final SwerveSubsystem swerveSubsystem;
   private final VisionSubsystem visionSubsystem;
