@@ -2,9 +2,9 @@ Control Methods (handwritten style)
 
 CommandJoystick:
 - getLeftX(): sol stick X ekseni, -1..1
-- getLeftY(): sol stick Y ekseni, -1..1
+- getLeftY(): sol stick Y ekseni, yukari +1 asagi -1
 - getRightX(): sag stick X ekseni, -1..1
-- getRightY(): sag stick Y ekseni, -1..1
+- getRightY(): sag stick Y ekseni, yukari +1 asagi -1
 - getL2(): L2 analog trigger, 0..1
 - getR2(): R2 analog trigger, 0..1
 - getL1(): L1 dijital buton Trigger

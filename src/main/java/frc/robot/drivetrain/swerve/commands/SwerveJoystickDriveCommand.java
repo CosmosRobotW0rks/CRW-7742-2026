@@ -40,7 +40,7 @@ public class SwerveJoystickDriveCommand extends Command {
     
     @Override
     public void execute() {
-        double xpercent = -joystick.getLeftY();
+        double xpercent = joystick.getLeftY();
         double ypercent = -joystick.getLeftX();
         double zpercent = -joystick.getRightX();
 

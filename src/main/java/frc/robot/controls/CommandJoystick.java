@@ -75,7 +75,7 @@ public class CommandJoystick extends CommandGenericHID {
     }
 
     public double getLeftY() {
-        return processStickAxis(joystick.getRawAxis(map.axisLeftY), DriveConstants.JOYDeadzone_X);
+        return processStickAxis(-joystick.getRawAxis(map.axisLeftY), DriveConstants.JOYDeadzone_X);
     }
 
     public double getRightX() {
@@ -83,7 +83,7 @@ public class CommandJoystick extends CommandGenericHID {
     }
 
     public double getRightY() {
-        return processStickAxis(joystick.getRawAxis(map.axisRightY), DriveConstants.JOYDeadzone_X);
+        return processStickAxis(-joystick.getRawAxis(map.axisRightY), DriveConstants.JOYDeadzone_X);
     }
 
     public double getL2() {
