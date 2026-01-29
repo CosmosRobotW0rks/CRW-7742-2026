@@ -1,6 +1,7 @@
 package frc.robot.drivetrain.swerve.commands;
 
 import java.util.Arrays;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -24,25 +25,33 @@ public class SwerveJoystickDriveCommand extends Command {
     };
 
     final SwerveSubsystem swerve;
-    final CommandJoystick joystick;
+
+    final DoubleSupplier supX;
+    final DoubleSupplier supY;
+    final DoubleSupplier supZ;
 
     boolean xZero, yZero, zZero = true;
 
     public SwerveJoystickDriveCommand(
         SwerveSubsystem swerve,
-        CommandJoystick joystick) {
+        DoubleSupplier sup_x,
+        DoubleSupplier sup_y,
+        DoubleSupplier sup_z) {
 
         this.swerve = swerve;
-        this.joystick = joystick;
+
+        this.supX = sup_x;
+        this.supY = sup_y;
+        this.supZ = sup_z;
 
         addRequirements(this.swerve);
     }
     
     @Override
     public void execute() {
-        double xpercent = joystick.getLeftY();
-        double ypercent = -joystick.getLeftX();
-        double zpercent = -joystick.getRightX();
+        double xpercent = supX.getAsDouble();
+        double ypercent = supY.getAsDouble();
+        double zpercent = supZ.getAsDouble();
 
         if (DriveConstants.SquareInputs) {
             xpercent = squarePreserveSign(xpercent);
