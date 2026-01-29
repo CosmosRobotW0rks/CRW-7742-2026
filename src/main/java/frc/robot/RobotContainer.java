@@ -95,4 +95,8 @@ public class RobotContainer {
     }).finallyDo(() -> swerveSubsystem.Stop());
   }
 
+  public void updateNetworkTables() {
+    driver.updateNetworkTables();
+  }
+
 }

@@ -1,5 +1,11 @@
 package frc.robot.controls;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -13,11 +19,55 @@ public class CommandJoystick extends CommandGenericHID {
 
     private final Joystick joystick;
     private final MapConfig map;
+    private final JoystickOptions options;
+    private final DoublePublisher leftXPub;
+    private final DoublePublisher leftYPub;
+    private final DoublePublisher rightXPub;
+    private final DoublePublisher rightYPub;
+    private final DoublePublisher leftXRawPub;
+    private final DoublePublisher leftYRawPub;
+    private final DoublePublisher rightXRawPub;
+    private final DoublePublisher rightYRawPub;
+    private final DoublePublisher l2Pub;
+    private final DoublePublisher r2Pub;
+    private final DoublePublisher l2RawPub;
+    private final DoublePublisher r2RawPub;
+    private final BooleanPublisher btnDownPub;
+    private final BooleanPublisher btnUpPub;
+    private final BooleanPublisher btnLeftPub;
+    private final BooleanPublisher btnRightPub;
+    private final BooleanPublisher l1Pub;
+    private final BooleanPublisher r1Pub;
+    private final IntegerPublisher povPub;
+    private final StringPublisher controllerTypePub;
 
     public CommandJoystick(JoystickOptions options) {
         super(Constants.OperatorConstants.kDriverControllerPort);
         this.joystick = new Joystick(Constants.OperatorConstants.kDriverControllerPort);
         this.map = MapConfig.from(options);
+        this.options = options;
+
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Controls/Driver");
+        controllerTypePub = table.getStringTopic("ControllerType").publish();
+        leftXPub = table.getDoubleTopic("LeftX").publish();
+        leftYPub = table.getDoubleTopic("LeftY").publish();
+        rightXPub = table.getDoubleTopic("RightX").publish();
+        rightYPub = table.getDoubleTopic("RightY").publish();
+        leftXRawPub = table.getDoubleTopic("LeftXRaw").publish();
+        leftYRawPub = table.getDoubleTopic("LeftYRaw").publish();
+        rightXRawPub = table.getDoubleTopic("RightXRaw").publish();
+        rightYRawPub = table.getDoubleTopic("RightYRaw").publish();
+        l2Pub = table.getDoubleTopic("L2").publish();
+        r2Pub = table.getDoubleTopic("R2").publish();
+        l2RawPub = table.getDoubleTopic("L2Raw").publish();
+        r2RawPub = table.getDoubleTopic("R2Raw").publish();
+        btnDownPub = table.getBooleanTopic("BtnDown").publish();
+        btnUpPub = table.getBooleanTopic("BtnUp").publish();
+        btnLeftPub = table.getBooleanTopic("BtnLeft").publish();
+        btnRightPub = table.getBooleanTopic("BtnRight").publish();
+        l1Pub = table.getBooleanTopic("L1").publish();
+        r1Pub = table.getBooleanTopic("R1").publish();
+        povPub = table.getIntegerTopic("Pov").publish();
     }
 
     public double getLeftX() {
@@ -120,6 +170,36 @@ public class CommandJoystick extends CommandGenericHID {
 
     public Trigger getPovUpRight() {
         return povAt(45);
+    }
+
+    public void updateNetworkTables() {
+        double leftXRaw = joystick.getRawAxis(map.axisLeftX);
+        double leftYRaw = joystick.getRawAxis(map.axisLeftY);
+        double rightXRaw = joystick.getRawAxis(map.axisRightX);
+        double rightYRaw = joystick.getRawAxis(map.axisRightY);
+        double l2Raw = joystick.getRawAxis(map.axisL2);
+        double r2Raw = joystick.getRawAxis(map.axisR2);
+
+        controllerTypePub.set(options.name());
+        leftXPub.set(getLeftX());
+        leftYPub.set(getLeftY());
+        rightXPub.set(getRightX());
+        rightYPub.set(getRightY());
+        leftXRawPub.set(leftXRaw);
+        leftYRawPub.set(leftYRaw);
+        rightXRawPub.set(rightXRaw);
+        rightYRawPub.set(rightYRaw);
+        l2Pub.set(AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(l2Raw));
+        r2Pub.set(AxisUtil.normalizeTriggerMinusOneToOneToZeroToOne(r2Raw));
+        l2RawPub.set(l2Raw);
+        r2RawPub.set(r2Raw);
+        btnDownPub.set(joystick.getRawButton(map.buttonDown));
+        btnUpPub.set(joystick.getRawButton(map.buttonUp));
+        btnLeftPub.set(joystick.getRawButton(map.buttonLeft));
+        btnRightPub.set(joystick.getRawButton(map.buttonRight));
+        l1Pub.set(joystick.getRawButton(map.buttonL1));
+        r1Pub.set(joystick.getRawButton(map.buttonR1));
+        povPub.set(joystick.getPOV());
     }
 
     private Trigger povAt(int angle) {
