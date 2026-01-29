@@ -259,35 +259,64 @@ public class CommandJoystick extends CommandGenericHID {
         }
 
         static MapConfig from(JoystickOptions options) {
+            boolean useMac = Constants.OperatorConstants.isMacOS && !Constants.OperatorConstants.isWindows;
             switch (options) {
                 case DualSense:
-                    return new MapConfig(
-                        DualSenseMap.AXIS_LEFT_X,
-                        DualSenseMap.AXIS_LEFT_Y,
-                        DualSenseMap.AXIS_RIGHT_X,
-                        DualSenseMap.AXIS_RIGHT_Y,
-                        DualSenseMap.AXIS_L2,
-                        DualSenseMap.AXIS_R2,
-                        DualSenseMap.BUTTON_L1,
-                        DualSenseMap.BUTTON_R1,
-                        DualSenseMap.BUTTON_DOWN,
-                        DualSenseMap.BUTTON_UP,
-                        DualSenseMap.BUTTON_LEFT,
-                        DualSenseMap.BUTTON_RIGHT);
+                    return useMac
+                        ? new MapConfig(
+                            DualSenseMap.AXIS_LEFT_X_MAC,
+                            DualSenseMap.AXIS_LEFT_Y_MAC,
+                            DualSenseMap.AXIS_RIGHT_X_MAC,
+                            DualSenseMap.AXIS_RIGHT_Y_MAC,
+                            DualSenseMap.AXIS_L2_MAC,
+                            DualSenseMap.AXIS_R2_MAC,
+                            DualSenseMap.BUTTON_L1_MAC,
+                            DualSenseMap.BUTTON_R1_MAC,
+                            DualSenseMap.BUTTON_DOWN_MAC,
+                            DualSenseMap.BUTTON_UP_MAC,
+                            DualSenseMap.BUTTON_LEFT_MAC,
+                            DualSenseMap.BUTTON_RIGHT_MAC)
+                        : new MapConfig(
+                            DualSenseMap.AXIS_LEFT_X_WIN,
+                            DualSenseMap.AXIS_LEFT_Y_WIN,
+                            DualSenseMap.AXIS_RIGHT_X_WIN,
+                            DualSenseMap.AXIS_RIGHT_Y_WIN,
+                            DualSenseMap.AXIS_L2_WIN,
+                            DualSenseMap.AXIS_R2_WIN,
+                            DualSenseMap.BUTTON_L1_WIN,
+                            DualSenseMap.BUTTON_R1_WIN,
+                            DualSenseMap.BUTTON_DOWN_WIN,
+                            DualSenseMap.BUTTON_UP_WIN,
+                            DualSenseMap.BUTTON_LEFT_WIN,
+                            DualSenseMap.BUTTON_RIGHT_WIN);
                 case Logitech:
-                    return new MapConfig(
-                        LogitechMap.AXIS_LEFT_X,
-                        LogitechMap.AXIS_LEFT_Y,
-                        LogitechMap.AXIS_RIGHT_X,
-                        LogitechMap.AXIS_RIGHT_Y,
-                        LogitechMap.AXIS_L2,
-                        LogitechMap.AXIS_R2,
-                        LogitechMap.BUTTON_L1,
-                        LogitechMap.BUTTON_R1,
-                        LogitechMap.BUTTON_DOWN,
-                        LogitechMap.BUTTON_UP,
-                        LogitechMap.BUTTON_LEFT,
-                        LogitechMap.BUTTON_RIGHT);
+                    return useMac
+                        ? new MapConfig(
+                            LogitechMap.AXIS_LEFT_X_MAC,
+                            LogitechMap.AXIS_LEFT_Y_MAC,
+                            LogitechMap.AXIS_RIGHT_X_MAC,
+                            LogitechMap.AXIS_RIGHT_Y_MAC,
+                            LogitechMap.AXIS_L2_MAC,
+                            LogitechMap.AXIS_R2_MAC,
+                            LogitechMap.BUTTON_L1_MAC,
+                            LogitechMap.BUTTON_R1_MAC,
+                            LogitechMap.BUTTON_DOWN_MAC,
+                            LogitechMap.BUTTON_UP_MAC,
+                            LogitechMap.BUTTON_LEFT_MAC,
+                            LogitechMap.BUTTON_RIGHT_MAC)
+                        : new MapConfig(
+                            LogitechMap.AXIS_LEFT_X_WIN,
+                            LogitechMap.AXIS_LEFT_Y_WIN,
+                            LogitechMap.AXIS_RIGHT_X_WIN,
+                            LogitechMap.AXIS_RIGHT_Y_WIN,
+                            LogitechMap.AXIS_L2_WIN,
+                            LogitechMap.AXIS_R2_WIN,
+                            LogitechMap.BUTTON_L1_WIN,
+                            LogitechMap.BUTTON_R1_WIN,
+                            LogitechMap.BUTTON_DOWN_WIN,
+                            LogitechMap.BUTTON_UP_WIN,
+                            LogitechMap.BUTTON_LEFT_WIN,
+                            LogitechMap.BUTTON_RIGHT_WIN);
                 default:
                     throw new IllegalStateException("Unsupported controller: " + options);
             }
