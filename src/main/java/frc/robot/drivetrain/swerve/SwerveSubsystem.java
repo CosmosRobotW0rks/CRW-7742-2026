@@ -12,6 +12,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -79,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
     ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
     // Odometry
-    private SwerveDriveOdometry odometry;
+    private SwerveDrivePoseEstimator estimator;
     private boolean odometryEnabled = true;
 
     // Constructor
@@ -92,10 +93,8 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         // Odom Init
-        odometry = new SwerveDriveOdometry(
-                kinematics,
-                getRobotHeading(),
-                getModulePositions());
+        estimator = new SwerveDrivePoseEstimator(kinematics, getRobotHeading(), getModulePositions(),
+                new Pose2d(0, 0, Rotation2d.kZero));
 
         // PathPlanner Init
         ModuleConfig ppModuleConfig = new ModuleConfig(
@@ -147,7 +146,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Getters
     public Pose2d getRobotPose() {
-        return odometry.getPoseMeters();
+        return estimator.getEstimatedPosition();
     }
 
     public Rotation2d getRobotHeading() {
@@ -219,8 +218,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Vision
 
-    public void setRobotPose(Pose2d p2d) {
-        odometry.resetPosition(getRobotHeading(), getModulePositions(), p2d);
+    public void addVisionMeasurement(Pose2d p2d, double timestampSeconds) {
+        estimator.addVisionMeasurement(p2d, timestampSeconds);
     }
 
     // Periodic (20ms!!)
@@ -229,10 +228,10 @@ public class SwerveSubsystem extends SubsystemBase {
         applyChassisSpeeds(targetChassisSpeeds);
 
         // Odometry
-        resetWithStartPose();;
+        resetWithStartPose();
 
         if (odometryEnabled)
-            odometry.update(getRobotHeading(), getModulePositions()); 
+            estimator.update(getRobotHeading(), getModulePositions());
 
         // Publishing
         swerveStatePublisher.set(getModuleStates());
@@ -255,10 +254,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // Private methods
 
     private void resetRobotPose(Pose2d pose) {
-        odometry.resetPosition(
-                getRobotHeading(),
-                getModulePositions(),
-                pose);
+
+        estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
     }
 
     private void setTargetSpeeds(ChassisSpeeds cs) {
@@ -369,11 +366,9 @@ public class SwerveSubsystem extends SubsystemBase {
         boolean isRed = AllianceUtils.isRedAlliance();
 
         if (isRed)
-        pose = AllianceUtils.FlipPose2d(pose);
+            pose = AllianceUtils.FlipPose2d(pose);
 
-        odometry.resetPosition(getRobotHeading(), getModulePositions(), pose);
-
-        
+        estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
 
     }
 

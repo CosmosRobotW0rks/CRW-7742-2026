@@ -58,8 +58,9 @@ public class VisionSubsystem extends SubsystemBase {
             Pose3d p3d = visionEst.get().estimatedPose;
             Pose2d p2d = p3d.toPose2d();
 
+            // TODO: Check if rotation is required
             Pose2d rotatedP2d = new Pose2d(p2d.getX(), p2d.getY(), p2d.getRotation().rotateBy(Rotation2d.k180deg));
-            swerveDt.setRobotPose(rotatedP2d);
+            swerveDt.addVisionMeasurement(rotatedP2d, visionEst.get().timestampSeconds);
 
             SmartDashboard.putNumberArray("PHOTONTEST/T3D", new Double[] { p3d.getX(), p3d.getY(), p3d.getZ() });
 
