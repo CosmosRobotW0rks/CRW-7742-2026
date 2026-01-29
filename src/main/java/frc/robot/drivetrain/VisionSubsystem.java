@@ -9,7 +9,9 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -25,7 +27,7 @@ public class VisionSubsystem extends SubsystemBase {
     // TODO: Use 2026 field
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
-    public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5),
+    public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.325, 0.0, 0),
             new Rotation3d(0, -65, 0));
 
     private PhotonPoseEstimator estimator = new PhotonPoseEstimator(kTagLayout,
@@ -54,8 +56,10 @@ public class VisionSubsystem extends SubsystemBase {
         if (!visionEst.isEmpty()) {
 
             Pose3d p3d = visionEst.get().estimatedPose;
+            Pose2d p2d = p3d.toPose2d();
 
-            swerveDt.setRobotPose(p3d.toPose2d());
+            Pose2d rotatedP2d = new Pose2d(p2d.getX(), p2d.getY(), p2d.getRotation().rotateBy(Rotation2d.k180deg));
+            swerveDt.setRobotPose(rotatedP2d);
 
             SmartDashboard.putNumberArray("PHOTONTEST/T3D", new Double[] { p3d.getX(), p3d.getY(), p3d.getZ() });
 
