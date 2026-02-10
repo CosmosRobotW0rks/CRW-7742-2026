@@ -19,6 +19,8 @@ public class SwerveModule {
 
     public void stop()
     {
+        if(moduleConfig == null) return;
+        
         moduleConfig.driveMotor().stop();
         moduleConfig.angleMotor().stop();
     }

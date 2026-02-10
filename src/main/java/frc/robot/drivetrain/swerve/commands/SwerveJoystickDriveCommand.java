@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.input.DriveInputSelector;
 
 public class SwerveJoystickDriveCommand extends Command {
 
@@ -26,8 +27,7 @@ public class SwerveJoystickDriveCommand extends Command {
     };
 
     final SwerveSubsystem swerve;
-    final Supplier<Double> suppX, suppY, suppZ;
-    final CommandXboxController joy;
+    final DriveInputSelector driveInput;
 
     boolean xZero, yZero, zZero = true;
 
@@ -39,23 +39,31 @@ public class SwerveJoystickDriveCommand extends Command {
         Supplier<Double> speedSuppRot) {
 
         this.swerve = swerve;
-        this.joy = joy;
-        this.suppX = speedSuppX;
-        this.suppY = speedSuppY;
-        this.suppZ = speedSuppRot;
+        this.driveInput = new DriveInputSelector(joy, speedSuppX, speedSuppY, speedSuppRot);
 
         addRequirements(this.swerve);
     }
     
     @Override
     public void execute() {
-        double xpercent = suppX.get();
-        double ypercent = suppY.get();
-        double zpercent = suppZ.get();
+        double[] percents = driveInput.getDrivePercents();
+        double xpercent = percents[0];
+        double ypercent = percents[1];
+        double zpercent = percents[2];
 
         xpercent = MathUtil.applyDeadband(xpercent, DriveConstants.JOYDeadzone_X);
         ypercent = MathUtil.applyDeadband(ypercent, DriveConstants.JOYDeadzone_Y);
         zpercent = MathUtil.applyDeadband(zpercent, DriveConstants.JOYDeadzone_Rot);
+
+        if (DriveConstants.SquareInputs) {
+            xpercent = squarePreserveSign(xpercent);
+            ypercent = squarePreserveSign(ypercent);
+            zpercent = squarePreserveSign(zpercent);
+        }
+
+        if (Math.abs(zpercent) < DriveConstants.JOYDeadzone_Rot) {
+            zpercent = 0.0;
+        }
 
         xpercent = MathUtil.clamp(xpercent, -1, 1);
         ypercent = MathUtil.clamp(ypercent, -1, 1);
@@ -69,7 +77,7 @@ public class SwerveJoystickDriveCommand extends Command {
             zpercent * DriveConstants.MaxRotSpeed
         };
 
-        applyFilter(targetSpeeds, new double[]{focs.vxMetersPerSecond, focs.vyMetersPerSecond, focs.omegaRadiansPerSecond});
+        //applyFilter(targetSpeeds, new double[]{focs.vxMetersPerSecond, focs.vyMetersPerSecond, focs.omegaRadiansPerSecond});
 
         
         if(xZero && yZero && zZero && Arrays.stream(targetSpeeds).allMatch(x -> x == 0)) return;
@@ -78,11 +86,9 @@ public class SwerveJoystickDriveCommand extends Command {
         yZero = targetSpeeds[1] == 0;
         zZero = targetSpeeds[2] == 0;
 
-        ChassisSpeeds targetfocs = new ChassisSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
-
         //SmartDashboard.putNumberArray("CommOutArr", new double[] {targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]});
 
-        swerve.setTargetFieldRelativeSpeeds(targetfocs);
+        swerve.setTargetFieldRelativeSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
     }
 
     void applyFilter(double[] targetSpeeds, double[] prevSpeeds)
@@ -95,5 +101,9 @@ public class SwerveJoystickDriveCommand extends Command {
             if(prevSpeeds[i] < targetSpeeds[i]) targetSpeeds[i] = incSpeed;
             else targetSpeeds[i] = descSpeed;
         }
+    }
+
+    private static double squarePreserveSign(double value) {
+        return Math.copySign(value * value, value);
     }
 }

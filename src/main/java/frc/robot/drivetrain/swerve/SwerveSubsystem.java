@@ -12,6 +12,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -40,6 +41,7 @@ import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
 import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
 import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
 import frc.robot.utils.AllianceUtils;
+import frc.robot.utils.Logging;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -51,7 +53,6 @@ public class SwerveSubsystem extends SubsystemBase {
             .getStructTopic("ChassisPose", Pose2d.struct).publish();
 
     Field2d fieldToPublish = new Field2d();
-
 
     // For testing individual modules
     private final SwerveModuleLocation isolatedModule = null;
@@ -68,10 +69,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private Map<SwerveModuleLocation, SwerveModule> modules = new java.util.EnumMap<>(SwerveModuleLocation.class);
 
     private final Translation2d[] moduleOffsets = {
-    new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
-    new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
-    new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
-    new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
+            new Translation2d(SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Front Left
+            new Translation2d(SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2), // Front Right
+            new Translation2d(-SwerveConstants.TrackWidthM / 2, SwerveConstants.TrackWidthM / 2), // Back Left
+            new Translation2d(-SwerveConstants.TrackWidthM / 2, -SwerveConstants.TrackWidthM / 2) // Back Right
     };
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleOffsets);
@@ -79,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
     ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
     // Odometry
-    private SwerveDriveOdometry odometry;
+    private SwerveDrivePoseEstimator estimator;
     private boolean odometryEnabled = true;
 
     // Constructor
@@ -88,39 +89,37 @@ public class SwerveSubsystem extends SubsystemBase {
         // Modules Init
         boolean moduleInitSuc = initModules();
         if (!moduleInitSuc) {
-            DriverStation.reportError("Failed to initialize Swerve Subsystem", false);
+            Logging.stickyError("Failed to initialize Swerve Subsystem", null);
         }
 
         // Odom Init
-        odometry = new SwerveDriveOdometry(
-                kinematics,
-                getRobotHeading(),
-                getModulePositions());
+        estimator = new SwerveDrivePoseEstimator(kinematics, getRobotHeading(), getModulePositions(),
+                new Pose2d(0, 0, Rotation2d.kZero));
 
         // PathPlanner Init
         ModuleConfig ppModuleConfig = new ModuleConfig(
-            SwerveConstants.WheelRadiusM,
-            AutoConstants.AutoMaxDriveSpeed, 
-            PhysicalProperties.wheelCOF,
-            DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
-            AutoConstants.AutoMaxCurrent,
-            8);
+                SwerveConstants.WheelRadiusM,
+                AutoConstants.PathFollow_maxSpeedMPS,
+                PhysicalProperties.wheelCOF,
+                DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
+                AutoConstants.PathFollow_maxCurrent,
+                8);
 
-        RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI, ppModuleConfig,  SwerveConstants.TrackWidthM);
+        RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI,
+                ppModuleConfig, SwerveConstants.TrackWidthM);
 
         AutoBuilder.configure(
-            this::getRobotPose,
-            this::resetRobotPose, 
-            this::getRobotRelativeSpeeds,
-            (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
-            new PPHolonomicDriveController(
-                    new PIDConstants(5.0, 0.0, 0.0),
-                    new PIDConstants(5.0, 0.0, 0.0)
-            ),
-            ppConfig, 
-            () -> AllianceUtils.isRedAlliance(), 
-            this);
-        
+                this::getRobotPose,
+                this::resetRobotPose,
+                this::getRobotRelativeSpeeds,
+                (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
+                new PPHolonomicDriveController(
+                        AutoConstants.PathFollow_Translation_PID,
+                        AutoConstants.PathFollow_Rotation_PID),
+                ppConfig,
+                () -> AllianceUtils.isRedAlliance(),
+                this);
+
         // NT Publishers Init
         SmartDashboard.putData("ToggleOdometry", toggleOdometry());
         SmartDashboard.putData("Field", fieldToPublish);
@@ -133,14 +132,13 @@ public class SwerveSubsystem extends SubsystemBase {
             modules.values().forEach(module -> module.stop());
         });
     }
-    
+
     public void Stop() {
         targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
         modules.values().forEach(module -> module.stop());
     }
 
-    public Command toggleOdometry()
-    {
+    public Command toggleOdometry() {
         return runOnce(() -> {
             odometryEnabled = !odometryEnabled;
         });
@@ -148,16 +146,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Getters
     public Pose2d getRobotPose() {
-        return odometry.getPoseMeters();
+        return estimator.getEstimatedPosition();
     }
 
     public Rotation2d getRobotHeading() {
         // TODO: Make sure returned value is CCW positive
 
-        if(Robot.isSimulation())
+        if (Robot.isSimulation())
             return Rotation2d.fromRadians(simulatedGyroAngleRad);
         else
-            return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading() + DriveConstants.RobotStartAngle.getDegrees());
+            return Rotation2d.fromDegrees(360.0 - gyro.getFusedHeading());
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -208,13 +206,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Setters
 
-    public void setTargetFieldRelativeSpeeds(ChassisSpeeds cs) {
-        var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                cs.vxMetersPerSecond,
-                cs.vyMetersPerSecond,
-                cs.omegaRadiansPerSecond,
-                getRobotHeading());
-
+    public void setTargetFieldRelativeSpeeds(double xMPS, double yMPS, double omegaRPS) {
+        var robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMPS, yMPS, omegaRPS, getRobotHeading());
         setTargetSpeeds(robotRelativeSpeeds);
     }
 
@@ -223,13 +216,22 @@ public class SwerveSubsystem extends SubsystemBase {
         setTargetSpeeds(cs);
     }
 
+    // Vision
+
+    public void addVisionMeasurement(Pose2d p2d, double timestampSeconds) {
+        estimator.addVisionMeasurement(p2d, timestampSeconds);
+    }
+
     // Periodic (20ms!!)
     @Override
     public void periodic() {
         applyChassisSpeeds(targetChassisSpeeds);
 
         // Odometry
-        if(odometryEnabled) odometry.update(getRobotHeading(), getModulePositions());
+        resetWithStartPose();
+
+        if (odometryEnabled)
+            estimator.update(getRobotHeading(), getModulePositions());
 
         // Publishing
         swerveStatePublisher.set(getModuleStates());
@@ -252,10 +254,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // Private methods
 
     private void resetRobotPose(Pose2d pose) {
-        odometry.resetPosition(
-                getRobotHeading(),
-                getModulePositions(),
-                pose);
+
+        estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
     }
 
     private void setTargetSpeeds(ChassisSpeeds cs) {
@@ -264,7 +264,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private void applyChassisSpeeds(ChassisSpeeds cs) {
 
-        //SmartDashboard.putNumberArray("AppliedCS", new double[] {cs.vxMetersPerSecond, cs.vyMetersPerSecond, cs.omegaRadiansPerSecond});
+        // SmartDashboard.putNumberArray("AppliedCS", new double[]
+        // {cs.vxMetersPerSecond, cs.vyMetersPerSecond, cs.omegaRadiansPerSecond});
 
         var states = kinematics.toSwerveModuleStates(cs);
 
@@ -286,14 +287,14 @@ public class SwerveSubsystem extends SubsystemBase {
     private boolean initModules() {
 
         if (isolatedModule != null)
-            DriverStation.reportWarning("WARNING!!! SWERVE MODULE ISOLATED: " + isolatedModule.name(), false);
+            Logging.stickyWarning("Swerve Module Isolated: " + isolatedModule.name(), null);
 
         for (SwerveModuleLocation location : SwerveModuleLocation.values()) {
 
             boolean suc = initModule(location);
 
             if (!suc) {
-                DriverStation.reportError("Failed to initialize Swerve Module: " + location.name(), false);
+                Logging.stickyError("Failed to initialize Swerve Module: " + location.name(), null);
                 return false;
             }
         }
@@ -354,6 +355,21 @@ public class SwerveSubsystem extends SubsystemBase {
         modules.put(location, module);
 
         return true;
+    }
+
+    void resetWithStartPose() {
+        if (!DriverStation.isDisabled())
+            return;
+
+        Pose2d pose = Constants.DriveConstants.defaultStartPose;
+
+        boolean isRed = AllianceUtils.isRedAlliance();
+
+        if (isRed)
+            pose = AllianceUtils.FlipPose2d(pose);
+
+        estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
+
     }
 
 }
