@@ -1,4 +1,4 @@
-package frc.robot.drivetrain.swerve;
+package frc.robot.subsystems.drivetrain.swerve;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -37,9 +37,9 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PhysicalProperties;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.DriveGearRatioOption;
-import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
-import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
-import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
+import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleConfiguration;
+import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleLocation;
+import frc.robot.subsystems.drivetrain.swerve.common.SwerveMotorConfig;
 import frc.robot.utils.AllianceUtils;
 import frc.robot.utils.Logging;
 

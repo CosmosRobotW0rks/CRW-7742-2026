@@ -1,4 +1,4 @@
-package frc.robot.drivetrain.swerve;
+package frc.robot.subsystems.drivetrain.swerve;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -14,8 +14,8 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.drivetrain.swerve.common.BaseSwerveDriveMotor;
-import frc.robot.drivetrain.swerve.common.SwerveMotorConfig;
+import frc.robot.subsystems.drivetrain.swerve.common.BaseSwerveDriveMotor;
+import frc.robot.subsystems.drivetrain.swerve.common.SwerveMotorConfig;
 
 public class SwerveDriveKraken implements BaseSwerveDriveMotor {
 

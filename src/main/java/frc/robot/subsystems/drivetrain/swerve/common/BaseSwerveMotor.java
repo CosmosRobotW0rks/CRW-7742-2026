@@ -1,4 +1,4 @@
-package frc.robot.drivetrain.swerve.common;
+package frc.robot.subsystems.drivetrain.swerve.common;
 
 public interface BaseSwerveMotor {
     public boolean init(SwerveMotorConfig config);

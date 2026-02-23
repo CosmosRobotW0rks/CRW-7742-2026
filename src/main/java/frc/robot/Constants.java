@@ -11,7 +11,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.drivetrain.swerve.common.SwerveModuleLocation;
+import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleLocation;
 
 public final class Constants {
   public static class OperatorConstants {

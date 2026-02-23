@@ -1,11 +1,11 @@
-package frc.robot.drivetrain.swerve;
+package frc.robot.subsystems.drivetrain.swerve;
 
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.drivetrain.swerve.common.SwerveModuleConfiguration;
+import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleConfiguration;
 
 public class SwerveModule {
     public SwerveModule() {

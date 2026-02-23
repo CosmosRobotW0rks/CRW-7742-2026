@@ -1,4 +1,4 @@
-package frc.robot.drivetrain.swerve.common;
+package frc.robot.subsystems.drivetrain.swerve.common;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
