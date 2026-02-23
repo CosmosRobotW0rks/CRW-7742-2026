@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.autoCommands.ApproachPoseCommand;
 import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
-import frc.robot.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 
 public class AutoHelper {
 

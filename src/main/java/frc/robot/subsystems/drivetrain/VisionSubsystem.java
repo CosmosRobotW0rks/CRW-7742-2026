@@ -1,4 +1,4 @@
-package frc.robot.drivetrain;
+package frc.robot.subsystems.drivetrain;
 
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 
 // TODO: Implement VisionSubsystem
 public class VisionSubsystem extends SubsystemBase {

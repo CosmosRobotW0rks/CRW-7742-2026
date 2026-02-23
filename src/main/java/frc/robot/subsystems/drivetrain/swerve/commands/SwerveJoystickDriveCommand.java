@@ -1,4 +1,4 @@
-package frc.robot.drivetrain.swerve.commands;
+package frc.robot.subsystems.drivetrain.swerve.commands;
 
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.controls.CommandJoystick;
-import frc.robot.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 
 public class SwerveJoystickDriveCommand extends Command {
 
