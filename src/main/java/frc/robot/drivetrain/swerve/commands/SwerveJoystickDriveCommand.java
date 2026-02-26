@@ -49,9 +49,16 @@ public class SwerveJoystickDriveCommand extends Command {
     
     @Override
     public void execute() {
+<<<<<<< Updated upstream
         double xpercent = supX.getAsDouble();
         double ypercent = supY.getAsDouble();
         double zpercent = supZ.getAsDouble();
+=======
+
+        double xpercent = suppX.get();
+        double ypercent = suppY.get();
+        double zpercent = suppZ.get();
+>>>>>>> Stashed changes
 
         if (DriveConstants.SquareInputs) {
             xpercent = squarePreserveSign(xpercent);
@@ -59,6 +66,7 @@ public class SwerveJoystickDriveCommand extends Command {
             zpercent = squarePreserveSign(zpercent);
         }
 
+<<<<<<< Updated upstream
         if (Math.abs(zpercent) < DriveConstants.JOYDeadzone_Rot) {
             zpercent = 0.0;
         }
@@ -66,41 +74,60 @@ public class SwerveJoystickDriveCommand extends Command {
         xpercent = clamp(xpercent, -1, 1);
         ypercent = clamp(ypercent, -1, 1);
         zpercent = clamp(zpercent, -1, 1);
+=======
+>>>>>>> Stashed changes
 
-        ChassisSpeeds focs = swerve.getTargetFieldRelativeSpeeds();
-        
+        double boostMultiplier = 1.0 + (joy.getRightTriggerAxis() * 0.5);
+
+
         double targetSpeeds[] = new double[] {
-            xpercent * DriveConstants.MaxDriveSpeed,
-            ypercent * DriveConstants.MaxDriveSpeed,
-            zpercent * DriveConstants.MaxRotSpeed
+            xpercent * DriveConstants.MaxDriveSpeed * boostMultiplier,
+            ypercent * DriveConstants.MaxDriveSpeed * boostMultiplier,
+            zpercent * DriveConstants.MaxRotSpeed * boostMultiplier
         };
 
+<<<<<<< Updated upstream
         //applyFilter(targetSpeeds, new double[]{focs.vxMetersPerSecond, focs.vyMetersPerSecond, focs.omegaRadiansPerSecond});
+=======
+>>>>>>> Stashed changes
 
-        
-        if(xZero && yZero && zZero && Arrays.stream(targetSpeeds).allMatch(x -> x == 0)) return;
+        ChassisSpeeds currentSpeeds = swerve.getTargetFieldRelativeSpeeds();
+        applyFilter(targetSpeeds, new double[]{
+            currentSpeeds.vxMetersPerSecond, 
+            currentSpeeds.vyMetersPerSecond, 
+            currentSpeeds.omegaRadiansPerSecond
+        });
+
+        if(xZero && yZero && zZero && Arrays.stream(targetSpeeds).allMatch(val -> val == 0)) return;
 
         xZero = targetSpeeds[0] == 0;
         yZero = targetSpeeds[1] == 0;
         zZero = targetSpeeds[2] == 0;
 
+<<<<<<< Updated upstream
         //SmartDashboard.putNumberArray("CommOutArr", new double[] {targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]});
 
         swerve.setTargetFieldRelativeSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
+=======
+        ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds(targetSpeeds[0], targetSpeeds[1], targetSpeeds[2]);
+        swerve.setTargetFieldRelativeSpeeds(targetChassisSpeeds);
+>>>>>>> Stashed changes
     }
 
-    void applyFilter(double[] targetSpeeds, double[] prevSpeeds)
-    {
-        for(int i = 0; i<3; i++)
-        {
+    void applyFilter(double[] targetSpeeds, double[] prevSpeeds) {
+        for(int i = 0; i < 3; i++) {
             double incSpeed = accelFilters[i].calculate(targetSpeeds[i]);
             double descSpeed = deccelFilters[i].calculate(targetSpeeds[i]);
 
-            if(prevSpeeds[i] < targetSpeeds[i]) targetSpeeds[i] = incSpeed;
-            else targetSpeeds[i] = descSpeed;
+            if(Math.abs(prevSpeeds[i]) < Math.abs(targetSpeeds[i])) {
+                targetSpeeds[i] = incSpeed;
+            } else {
+                targetSpeeds[i] = descSpeed;
+            }
         }
     }
 
+<<<<<<< Updated upstream
     private static double squarePreserveSign(double value) {
         return Math.copySign(value * value, value);
     }
@@ -109,3 +136,10 @@ public class SwerveJoystickDriveCommand extends Command {
         return Math.max(min, Math.min(max, value));
     }
 }
+=======
+    @Override
+    public void end(boolean interrupted) {
+        swerve.setTargetFieldRelativeSpeeds(new ChassisSpeeds(0, 0, 0));
+    }
+}
+>>>>>>> Stashed changes
