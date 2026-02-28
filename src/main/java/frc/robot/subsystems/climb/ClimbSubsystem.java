@@ -32,23 +32,23 @@ public class ClimbSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Climb/State", state == ClimbState.UP ? true : false);
     }
 
-    public Command UpCommand()
+    public Command Up()
     {
         return Commands.runOnce(() -> state = ClimbState.UP, this);
     }
 
-    public Command DownCommand()
+    public Command Down()
     {
         return Commands.runOnce(() -> state = ClimbState.DOWN, this);
     }
 
-    public Command ToggleCommand()
+    public Command Toggle()
     {
         return Commands.deferredProxy(() -> {
             if (state == ClimbState.UP)
-                return DownCommand();
+                return Down();
             else
-                return UpCommand();
+                return Up();
         });
     }
 

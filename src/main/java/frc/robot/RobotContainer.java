@@ -4,38 +4,21 @@
 
 package frc.robot;
 
-import frc.robot.auto.AutoHelper;
-import frc.robot.auto.autoCommands.ApproachPoseCommand;
-import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
 import frc.robot.controls.CommandJoystick;
 import frc.robot.controls.JoystickOptions;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drivetrain.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.shooter.ShooterCalibration;
 import frc.robot.subsystems.shooter.ShooterCalibratorSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.utils.Logging;
 
-import java.util.Set;
-import java.util.function.DoubleSupplier;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 public class RobotContainer {
 
@@ -45,7 +28,11 @@ public class RobotContainer {
   private final VisionSubsystem visionSubsystem;
 
   private final IntakeSubsystem intakeSubsystem;
-  
+  private final ClimbSubsystem climbSubsystem;
+
+  private final ShooterSubsystem shooterSubsystem;
+  private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
+
   /* 
   private final ShooterSubsystem shooterSubsystem;
   private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
@@ -54,12 +41,10 @@ public class RobotContainer {
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem();
     intakeSubsystem = new IntakeSubsystem();
-
-    /* 
     shooterSubsystem = new ShooterSubsystem();
     shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
-*/
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
+    climbSubsystem = new ClimbSubsystem();
     
     configureBindings();
 
@@ -69,8 +54,6 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    // TODO: Are the joystick directions (signs) correct?
-    
     swerveSubsystem.setDefaultCommand(new SwerveJoystickDriveCommand(
         swerveSubsystem,
         () -> driver.getLeftY(),
@@ -79,12 +62,8 @@ public class RobotContainer {
         () -> driver.getR2()
         ));
 
-        
-    //driver.getBtnDown().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
-
-    //driver.getBtnRight().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
-
     driver.getBtnDown().onTrue(intakeSubsystem.Toggle());
+    driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
 
 /* 
     driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
