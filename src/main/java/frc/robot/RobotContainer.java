@@ -16,6 +16,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.utils.Logging;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -46,7 +48,8 @@ public class RobotContainer {
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
     climbSubsystem = new ClimbSubsystem();
     
-    configureBindings();
+    if(DriverStation.isTest()) configureTESTBindings();
+    else configureBindings();
 
     Logging.infoMsg("Init Complete","Initialized subsystems");
     
@@ -65,14 +68,17 @@ public class RobotContainer {
     driver.getBtnDown().onTrue(intakeSubsystem.Toggle());
     driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
 
-/* 
+    
+  }
+
+  private void configureTESTBindings()
+  {
     driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
     driver.getPovUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
 
     driver.getBtnRight().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
 
     driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());   
-    */
     
   }
 
