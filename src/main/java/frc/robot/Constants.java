@@ -26,35 +26,33 @@ public final class Constants {
   public static class IntakeConstants {
     
     public static final int IntakeRollerMotorCANID = 32;
-    public static final double IntakeRoller_TargetVelocity = 6; // RPM
-    public static final double IntakeRollerPF_P = 0;
-    public static final double IntakeRollerPF_F = 0;
+    public static final double IntakeRoller_TargetVelocity = 1000; // TBD
+    public static final double IntakeRollerPF_P = 0.00001;
+    public static final double IntakeRollerPF_F = 0.000167;
     
     public static final int IntakeAngleMotorCANID = 31;
-    public static final double IntakeAngleP_P = 0;
-    public static final double IntakeAngleP_OutMax = 0;
+    public static final double IntakeAngleP_P = 0.2;
+    public static final double IntakeAngleP_OutMax = 0.2;
     
-    public static final double Intake_TargetAngle = 0;
-    public static final double Intake_AngleTolerance = 0;
+    public static final double Intake_TargetAngle = 0; // TBD
+    public static final double Intake_AngleTolerance = 0; // TBD
   }
 
   public static class ShooterConstants {
-    public static final int FeederMotorCANID = 33;
-    public static final double Feeder_TargetRPM = 0;
-    public static final double FeederPF_P = 0;
-    public static final double FeederPF_F = 0;
+    public static final int FeederMotorCANID = 33; 
+    public static final double Feeder_TargetRPM = 0; // TBD
+    public static final double FeederPF_P = 0; // TBD
+    public static final double FeederPF_F = 0; // TBD
 
     public static final int UpperShooterMotorCANID = 35;
-    public static final double UpperShooterPF_P = 0;
-    public static final double UpperShooterPF_F = 0;
+    public static final double UpperShooterPF_P = 0.000012;
+    public static final double UpperShooterPF_F = 0.00216;
     
     public static final int LowerShooterMotorCANID = 34;
-    public static final double LowerShooterPF_P = 0;
-    public static final double LowerShooterPF_F = 0;
-    
-    public static final double Shooter_MaxAccel = 4000;
+    public static final double LowerShooterPF_P = 0.000012;
+    public static final double LowerShooterPF_F = 0.00223;
 
-    public static final double RPM_Tolerance = 50;
+    public static final double RPM_Tolerance = 100; // TBD
 
   }
 
