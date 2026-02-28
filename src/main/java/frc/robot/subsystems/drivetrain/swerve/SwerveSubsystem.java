@@ -11,6 +11,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -144,6 +145,18 @@ public class SwerveSubsystem extends SubsystemBase {
         });
     }
 
+    public Command resetAllCANCoderOffsetsCommand() {
+        return runOnce(() -> {
+            modules.values().forEach(m -> m.resetCANCoderOffset());
+        });
+    }
+
+    public Command resetCANCoderOffsetCommand(SwerveModuleLocation location) {
+        return runOnce(() -> {
+            modules.get(location).resetCANCoderOffset();
+        });
+    }
+
     // Getters
     public Pose2d getRobotPose() {
         return estimator.getEstimatedPosition();
@@ -220,6 +233,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void addVisionMeasurement(Pose2d p2d, double timestampSeconds) {
         estimator.addVisionMeasurement(p2d, timestampSeconds);
+    }
+
+    public SwerveModule getModule(SwerveModuleLocation location) {
+        return modules.get(location);
     }
 
     // Periodic (20ms!!)
@@ -350,7 +367,8 @@ public class SwerveSubsystem extends SubsystemBase {
             return false;
         }
 
-        module.init(new SwerveModuleConfiguration(location, angleMotor, driveMotor));
+        module.init(new SwerveModuleConfiguration(location, angleMotor, driveMotor,
+            new CANcoder(SwerveConstants.EncoderCANIDMap.get(location))));
 
         modules.put(location, module);
 
