@@ -10,5 +10,7 @@ public interface BaseSwerveAngleMotor extends BaseSwerveMotor {
     public void setCurrentAngle(Rotation2d angle);
     public void setTargetAngle(Rotation2d angle);
 
+    public void resetAngleWithAbsEncoder(Rotation2d currentRotation);
+
     public void stop();
 }

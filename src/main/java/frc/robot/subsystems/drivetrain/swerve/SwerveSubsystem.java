@@ -322,6 +322,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private boolean initModule(SwerveModuleLocation location) {
         SwerveAngleKraken angleMotor = new SwerveAngleKraken();
         SwerveDriveKraken driveMotor = new SwerveDriveKraken();
+        CANcoder cancoder = new CANcoder(SwerveConstants.EncoderCANIDMap.get(location));
 
         SwerveModule module = new SwerveModule();
 
@@ -367,8 +368,7 @@ public class SwerveSubsystem extends SubsystemBase {
             return false;
         }
 
-        module.init(new SwerveModuleConfiguration(location, angleMotor, driveMotor,
-            new CANcoder(SwerveConstants.EncoderCANIDMap.get(location))));
+        module.init(new SwerveModuleConfiguration(location, angleMotor, driveMotor, cancoder));
 
         modules.put(location, module);
 

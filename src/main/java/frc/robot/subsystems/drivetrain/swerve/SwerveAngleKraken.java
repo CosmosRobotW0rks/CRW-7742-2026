@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -113,6 +114,11 @@ public class SwerveAngleKraken implements BaseSwerveAngleMotor{
         {
             DriverStation.reportError("Failed to set Swerve TalonFX (ID: " + talonFX.getDeviceID() + ") target angle", false);
         }
+    }
+
+    @Override
+    public void resetAngleWithAbsEncoder(Rotation2d rot) {
+        talonFX.setPosition(swerveAngleToMotorRot(rot));
     }
 
 

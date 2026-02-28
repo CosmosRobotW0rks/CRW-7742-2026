@@ -58,10 +58,10 @@ public class SwerveModule {
 
     public void resetCANCoderOffset() {
         if(moduleConfig == null) return;
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        moduleConfig.cancoder().getConfigurator().refresh(config);
-        config.MagnetSensor.MagnetOffset = -moduleConfig.cancoder().getAbsolutePosition().getValueAsDouble();
-        moduleConfig.cancoder().getConfigurator().apply(config);
+
+        double rot = moduleConfig.cancoder().getAbsolutePosition().getValueAsDouble() + 0.5;
+
+        moduleConfig.angleMotor().resetAngleWithAbsEncoder(Rotation2d.fromRotations(rot));
     }
 
     // SIMULATION
