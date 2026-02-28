@@ -153,21 +153,10 @@ public final class Constants {
         SwerveModuleLocation.BACK_RIGHT, 47);
 
     public static final Map<SwerveModuleLocation, Integer> EncoderCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT,  20,
-        SwerveModuleLocation.FRONT_RIGHT, 21,
-        SwerveModuleLocation.BACK_LEFT,   22,
-        SwerveModuleLocation.BACK_RIGHT,  23);
-
-    // Absolute encoder not implemented yet
-    public static final int ABSENCPORTID_FL = -1;
-    public static final int ABSENCPORTID_FR = -1;
-    public static final int ABSENCPORTID_BL = -1;
-    public static final int ABSENCPORTID_BR = -1;
-
-    public static final double ABSENCOFFSET_FL = 0;
-    public static final double ABSENCOFFSET_FR = 0;
-    public static final double ABSENCOFFSET_BL = 0;
-    public static final double ABSENCOFFSET_BR = 0;
+        SwerveModuleLocation.FRONT_LEFT,  21,
+        SwerveModuleLocation.FRONT_RIGHT, 22,
+        SwerveModuleLocation.BACK_LEFT,   23,
+        SwerveModuleLocation.BACK_RIGHT,  24);
 
   }
 }
