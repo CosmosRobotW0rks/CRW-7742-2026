@@ -18,6 +18,11 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class ClimbConstants {
+    public static final int PCMCANID = 0;
+    public static final int ValveChannel = 0;
+  }
+
   public static class IntakeConstants {
     
     public static final int IntakeRollerMotorCANID = 0;
