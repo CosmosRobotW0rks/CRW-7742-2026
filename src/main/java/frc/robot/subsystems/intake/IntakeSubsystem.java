@@ -53,8 +53,12 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command Toggle() {
-        if(state == IntakeState.CLOSED) return Open();
-        else return Close();
+        return Commands.deferredProxy(() -> {
+            if (state == IntakeState.CLOSED)
+                return Open();
+            else
+                return Close();
+        });
     }
 
     public Command Open() {
@@ -75,8 +79,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
             case CLOSED:
                 angleMotor.getClosedLoopController().setSetpoint(0, ControlType.kPosition);
-            break;
-            
+                break;
+
             case OPEN:
                 angleMotor.getClosedLoopController().setSetpoint(IntakeConstants.Intake_TargetAngle,
                         ControlType.kPosition);
@@ -84,12 +88,11 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
         }
 
-        if(state == IntakeState.OPEN)
-        {
-            rollerMotor.getClosedLoopController().setSetpoint(IntakeConstants.IntakeRoller_TargetVelocity, ControlType.kVelocity);
+        if (state == IntakeState.OPEN) {
+            rollerMotor.getClosedLoopController().setSetpoint(IntakeConstants.IntakeRoller_TargetVelocity,
+                    ControlType.kVelocity);
         }
 
-        
         SmartDashboard.putBoolean("Intake/IsOpen", isOpen());
         SmartDashboard.putBoolean("Intake/IsClosed", isClosed());
         SmartDashboard.putString("Intake/TargetState", state.toString());
