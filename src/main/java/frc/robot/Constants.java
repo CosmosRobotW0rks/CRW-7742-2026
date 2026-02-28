@@ -18,6 +18,21 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class IntakeConstants {
+    
+    public static final int IntakeRollerMotorCANID = 0;
+    public static final double IntakeRoller_TargetVelocity = 6; // RPM
+    public static final double IntakeRollerPF_P = 0;
+    public static final double IntakeRollerPF_F = 0;
+    
+    public static final int IntakeAngleMotorCANID = 0;
+    public static final double IntakeAngleP_P = 0;
+    public static final double IntakeAngleP_OutMax = 0;
+    
+    public static final double Intake_TargetAngle = 0;
+    public static final double Intake_AngleTolerance = 0;
+  }
+
   public static class ShooterConstants {
     public static final int FeederMotorCANID = 0;
     public static final double Feeder_GearRatio = 5;
