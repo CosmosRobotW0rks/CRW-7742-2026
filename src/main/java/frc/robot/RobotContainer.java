@@ -12,6 +12,7 @@ import frc.robot.controls.JoystickOptions;
 import frc.robot.subsystems.drivetrain.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterCalibration;
 import frc.robot.subsystems.shooter.ShooterCalibratorSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -42,6 +43,8 @@ public class RobotContainer {
 
   private final SwerveSubsystem swerveSubsystem;
   private final VisionSubsystem visionSubsystem;
+
+  private final IntakeSubsystem intakeSubsystem;
   
   /* 
   private final ShooterSubsystem shooterSubsystem;
@@ -50,6 +53,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem();
+    intakeSubsystem = new IntakeSubsystem();
 
     /* 
     shooterSubsystem = new ShooterSubsystem();
@@ -74,9 +78,11 @@ public class RobotContainer {
         () -> -driver.getRightX()
         ));
 
-    driver.getBtnDown().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
+    //driver.getBtnDown().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
 
-    driver.getBtnRight().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
+    //driver.getBtnRight().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
+
+    driver.getBtnDown().onTrue(intakeSubsystem.Toggle());
 
 /* 
     driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
