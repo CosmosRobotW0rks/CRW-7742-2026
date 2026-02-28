@@ -75,9 +75,11 @@ public class RobotContainer {
         swerveSubsystem,
         () -> driver.getLeftY(),
         () -> -driver.getLeftX(),
-        () -> -driver.getRightX()
+        () -> -driver.getRightX(),
+        () -> driver.getR2()
         ));
 
+        
     //driver.getBtnDown().whileTrue(AutoHelper.GetClimbCommand(swerveSubsystem));
 
     //driver.getBtnRight().whileTrue(new ApproachPoseCommand(swerveSubsystem, new ApproachPoseConfiguration(1.55,3.55)));
