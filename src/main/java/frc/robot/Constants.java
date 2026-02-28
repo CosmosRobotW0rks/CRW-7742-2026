@@ -88,6 +88,7 @@ public final class Constants {
     // TODO -- Shuffleboard selection ?
 
     public static final double MaxDriveSpeed = 3.5;
+    public static final double MaxSpeedWithBoost = 5;
     
     // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s
@@ -97,6 +98,9 @@ public final class Constants {
     public static final double MaxDriveDeccel = 30; // m/s^2
 
     public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s
+    public static final double MaxRotSpeedWithBoost = Math.PI * 2 * 0.8; // rad/s
+
+
     public static final double MaxRotAccel = Math.PI * 2 * 6; // rad/s^2
     public static final double MaxRotDeccel = Math.PI * 2 * 6; // rad/s^2
     
