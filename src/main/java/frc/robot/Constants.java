@@ -19,18 +19,18 @@ public final class Constants {
   }
 
   public static class ClimbConstants {
-    public static final int PCMCANID = 0;
-    public static final int ValveChannel = 0;
+    public static final int PCMCANID = 6;
+    public static final int ValveChannel = 1;
   }
 
   public static class IntakeConstants {
     
-    public static final int IntakeRollerMotorCANID = 0;
+    public static final int IntakeRollerMotorCANID = 32;
     public static final double IntakeRoller_TargetVelocity = 6; // RPM
     public static final double IntakeRollerPF_P = 0;
     public static final double IntakeRollerPF_F = 0;
     
-    public static final int IntakeAngleMotorCANID = 0;
+    public static final int IntakeAngleMotorCANID = 31;
     public static final double IntakeAngleP_P = 0;
     public static final double IntakeAngleP_OutMax = 0;
     
@@ -39,9 +39,8 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static final int FeederMotorCANID = 0;
-    public static final double Feeder_GearRatio = 5;
-    public static final double Feeder_TargetRPM = 100;
+    public static final int FeederMotorCANID = 33;
+    public static final double Feeder_TargetRPM = 0;
     public static final double FeederPF_P = 0;
     public static final double FeederPF_F = 0;
 
@@ -49,7 +48,7 @@ public final class Constants {
     public static final double UpperShooterPF_P = 0;
     public static final double UpperShooterPF_F = 0;
     
-    public static final int LowerShooterMotorCANID = 11;
+    public static final int LowerShooterMotorCANID = 34;
     public static final double LowerShooterPF_P = 0;
     public static final double LowerShooterPF_F = 0;
     
@@ -144,16 +143,16 @@ public final class Constants {
     public static final double DrivePeakVoltage = 12;
 
     public static final Map<SwerveModuleLocation, Integer> AngleCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 12,
-        SwerveModuleLocation.FRONT_RIGHT, 14,
-        SwerveModuleLocation.BACK_LEFT, 16,
-        SwerveModuleLocation.BACK_RIGHT, 18);
+        SwerveModuleLocation.FRONT_LEFT, 42,
+        SwerveModuleLocation.FRONT_RIGHT, 44,
+        SwerveModuleLocation.BACK_LEFT, 46,
+        SwerveModuleLocation.BACK_RIGHT, 48);
 
     public static final Map<SwerveModuleLocation, Integer> DriveCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 11,
-        SwerveModuleLocation.FRONT_RIGHT, 13,
-        SwerveModuleLocation.BACK_LEFT, 15,
-        SwerveModuleLocation.BACK_RIGHT, 17);
+        SwerveModuleLocation.FRONT_LEFT, 41,
+        SwerveModuleLocation.FRONT_RIGHT, 43,
+        SwerveModuleLocation.BACK_LEFT, 45,
+        SwerveModuleLocation.BACK_RIGHT, 47);
 
     // Absolute encoder not implemented yet
     public static final int ABSENCPORTID_FL = -1;
