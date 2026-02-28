@@ -34,8 +34,8 @@ public final class Constants {
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.2;
     
-    public static final double Intake_TargetAngle = 0; // TBD
-    public static final double Intake_AngleTolerance = 0; // TBD
+    public static final double Intake_TargetAngle = -10; // TBD
+    public static final double Intake_AngleTolerance = 0.5; // TBD
   }
 
   public static class ShooterConstants {
@@ -89,7 +89,7 @@ public final class Constants {
 
     // TODO -- Shuffleboard selection ?
 
-    public static final double MaxDriveSpeed = 3.5;
+    public static final double MaxDriveSpeed = 2;
     public static final double MaxSpeedWithBoost = 5;
     
     // m/s

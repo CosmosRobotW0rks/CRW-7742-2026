@@ -17,6 +17,8 @@ public class SwerveModule {
 
     public void init(SwerveModuleConfiguration config) {
         this.moduleConfig = config;
+        
+        resetCANCoderOffset();
     }
 
     public void stop()
@@ -59,9 +61,7 @@ public class SwerveModule {
     public void resetCANCoderOffset() {
         if(moduleConfig == null) return;
 
-        double rot = moduleConfig.cancoder().getAbsolutePosition().getValueAsDouble() + 0.5;
-
-        moduleConfig.angleMotor().resetAngleWithAbsEncoder(Rotation2d.fromRotations(rot));
+        moduleConfig.angleMotor().resetAngleWithAbsEncoder(moduleConfig.cancoder());
     }
 
     // SIMULATION

@@ -50,6 +50,7 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Intake/IsOpen", isOpen());
         SmartDashboard.putBoolean("Intake/IsClosed", isClosed());
         SmartDashboard.putString("Intake/TargetState", state.toString());
+        SmartDashboard.putNumber("Intake/Angle", -1);
     }
 
     public Command Toggle() {
@@ -88,14 +89,15 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
         }
 
-        if (state == IntakeState.OPEN) {
-            rollerMotor.getClosedLoopController().setSetpoint(IntakeConstants.IntakeRoller_TargetVelocity,
-                    ControlType.kVelocity);
-        }
+        double rollerTargetRPM = state == IntakeState.OPEN ? IntakeConstants.IntakeRoller_TargetVelocity : 0;
+        
+        rollerMotor.getClosedLoopController().setSetpoint(rollerTargetRPM, ControlType.kVelocity);
 
         SmartDashboard.putBoolean("Intake/IsOpen", isOpen());
         SmartDashboard.putBoolean("Intake/IsClosed", isClosed());
         SmartDashboard.putString("Intake/TargetState", state.toString());
+        SmartDashboard.putNumber("Intake/Angle", angleMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("Intake/RollerVelocity", rollerMotor.getEncoder().getVelocity());
     }
 
     private boolean isOpen() {

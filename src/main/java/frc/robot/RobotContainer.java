@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer {
 
-  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.DualSense);
+  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.Logitech);
 
   private final SwerveSubsystem swerveSubsystem;
   private final VisionSubsystem visionSubsystem;
@@ -48,8 +48,7 @@ public class RobotContainer {
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
     climbSubsystem = new ClimbSubsystem();
     
-    if(DriverStation.isTest()) configureTESTBindings();
-    else configureBindings();
+    configureBindings();
 
     Logging.infoMsg("Init Complete","Initialized subsystems");
     
@@ -65,20 +64,21 @@ public class RobotContainer {
         () -> driver.getR2()
         ));
 
-    driver.getBtnDown().onTrue(intakeSubsystem.Toggle());
-    driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
+    //driver.getBtnDown().onTrue(intakeSubsystem.Toggle());
+    //driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
 
     
-  }
+    //driver.getBtnRight().onTrue(intakeSubsystem.Open());
+    //driver.getBtnUp().onTrue(intakeSubsystem.Close());
 
-  private void configureTESTBindings()
-  {
+
     driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
     driver.getPovUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
 
     driver.getBtnRight().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
 
     driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());   
+   
     
   }
 
