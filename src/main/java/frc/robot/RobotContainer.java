@@ -35,10 +35,10 @@ public class RobotContainer {
   private final ShooterSubsystem shooterSubsystem;
   private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
 
-  /* 
-  private final ShooterSubsystem shooterSubsystem;
-  private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
-*/
+  /*
+   * private final ShooterSubsystem shooterSubsystem;
+   * private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
+   */
 
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem();
@@ -47,11 +47,11 @@ public class RobotContainer {
     shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
     climbSubsystem = new ClimbSubsystem();
-    
+
     configureBindings();
 
-    Logging.infoMsg("Init Complete","Initialized subsystems");
-    
+    Logging.infoMsg("Init Complete", "Initialized subsystems");
+
   }
 
   private void configureBindings() {
@@ -61,34 +61,31 @@ public class RobotContainer {
         () -> driver.getLeftY(),
         () -> -driver.getLeftX(),
         () -> -driver.getRightX(),
-        () -> driver.getR2()
-        ));
+        () -> driver.getR2()));
 
-    //driver.getBtnDown().onTrue(intakeSubsystem.Toggle());
-    //driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
-
-    
-    //driver.getBtnRight().onTrue(intakeSubsystem.Open());
-    //driver.getBtnUp().onTrue(intakeSubsystem.Close());
-
-
+        
     driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
     driver.getPovUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
 
-    driver.getBtnRight().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
-
-    driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());   
-   
     
+    // driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
+
+    driver.getR1().onTrue(intakeSubsystem.Toggle());
+
+    driver.getL1().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
+
+    driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());
+
   }
 
   double time = 0;
 
   public Command getAutonomousCommand() {
 
-    return Commands.runOnce(() -> time = Timer.getFPGATimestamp()).andThen(new PathPlannerAuto("TESTAUTO")).andThen(() ->{
-      System.out.println("AUTO TIME: " + (Timer.getFPGATimestamp() - time));
-    }).finallyDo(() -> swerveSubsystem.Stop());
+    return Commands.runOnce(() -> time = Timer.getFPGATimestamp()).andThen(new PathPlannerAuto("TESTAUTO"))
+        .andThen(() -> {
+          System.out.println("AUTO TIME: " + (Timer.getFPGATimestamp() - time));
+        }).finallyDo(() -> swerveSubsystem.Stop());
   }
 
   public void updateNetworkTables() {

@@ -224,7 +224,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // SET RPMS
   private void setUpperMotorRPM(double rpm) {
-
     upperMotor.getClosedLoopController().setSetpoint(rpm, ControlType.kVelocity);
   }
 
@@ -233,7 +232,13 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   private void toggleFeeder(boolean state) {
-    feederMotor.getClosedLoopController().setSetpoint(state ? Constants.ShooterConstants.Feeder_TargetRPM : 0, ControlType.kVelocity);
+    
+    // TODO: USE VELOCITY
+    //feederMotor.getClosedLoopController().setSetpoint(state ? Constants.ShooterConstants.Feeder_TargetRPM : 0, ControlType.kVelocity);
+    
+    feederMotor.getClosedLoopController().setSetpoint(state ? Constants.ShooterConstants.Feeder_TargetVoltage : 0, ControlType.kVoltage);
+
+
   }
 
   // PERIODIC

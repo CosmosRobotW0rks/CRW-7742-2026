@@ -26,21 +26,22 @@ public final class Constants {
   public static class IntakeConstants {
     
     public static final int IntakeRollerMotorCANID = 32;
-    public static final double IntakeRoller_TargetVelocity = 1000; // TBD
+    public static final double IntakeRoller_TargetVelocity = -2400; // TBD
     public static final double IntakeRollerPF_P = 0.00001;
-    public static final double IntakeRollerPF_F = 0.000167;
+    public static final double IntakeRollerPF_F = 0.00225;
     
     public static final int IntakeAngleMotorCANID = 31;
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.2;
     
-    public static final double Intake_TargetAngle = -10; // TBD
+    public static final double Intake_TargetAngle = -10.3; // TBD
     public static final double Intake_AngleTolerance = 0.5; // TBD
   }
 
   public static class ShooterConstants {
-    public static final int FeederMotorCANID = 33; 
+    public static final int FeederMotorCANID = 33;
     public static final double Feeder_TargetRPM = 0; // TBD
+    public static final double Feeder_TargetVoltage = 3; // TEMPORARY
     public static final double FeederPF_P = 0; // TBD
     public static final double FeederPF_F = 0; // TBD
 
@@ -52,7 +53,7 @@ public final class Constants {
     public static final double LowerShooterPF_P = 0.000012;
     public static final double LowerShooterPF_F = 0.00223;
 
-    public static final double RPM_Tolerance = 100; // TBD
+    public static final double RPM_Tolerance = 200; // TBD
 
   }
 
