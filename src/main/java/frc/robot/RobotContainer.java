@@ -11,9 +11,13 @@ import frc.robot.subsystems.drivetrain.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.health.HealthMonitoring;
 import frc.robot.subsystems.shooter.ShooterCalibratorSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.utils.Logging;
+
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
@@ -35,7 +39,10 @@ public class RobotContainer {
   private final ShooterSubsystem shooterSubsystem;
   private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
 
-  /* 
+  private final PowerDistribution pdp;
+  private final HealthMonitoring healthMonitoring;
+
+  /*
   private final ShooterSubsystem shooterSubsystem;
   private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
 */
@@ -47,7 +54,10 @@ public class RobotContainer {
     shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
     climbSubsystem = new ClimbSubsystem();
-    
+
+    pdp = new PowerDistribution(0, ModuleType.kCTRE);
+    healthMonitoring = new HealthMonitoring(pdp, swerveSubsystem);
+
     configureBindings();
 
     Logging.infoMsg("Init Complete","Initialized subsystems");
