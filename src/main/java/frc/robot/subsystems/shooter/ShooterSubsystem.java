@@ -95,7 +95,6 @@ public class ShooterSubsystem extends SubsystemBase {
     SparkMaxConfig upperMotorConfig = new SparkMaxConfig();
     upperMotorConfig.closedLoop.feedForward.kV(Constants.ShooterConstants.UpperShooterPF_F);
     upperMotorConfig.closedLoop.p(Constants.ShooterConstants.UpperShooterPF_P);
-    upperMotorConfig.closedLoop.maxMotion.maxAcceleration(Constants.ShooterConstants.Shooter_MaxAccel);
     upperMotor.configure(upperMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     lowerMotor = new SparkMax(Constants.ShooterConstants.LowerShooterMotorCANID, MotorType.kBrushless); // MAXMotion
@@ -103,7 +102,6 @@ public class ShooterSubsystem extends SubsystemBase {
     SparkMaxConfig lowerMotorConfig = new SparkMaxConfig();
     lowerMotorConfig.closedLoop.feedForward.kV(Constants.ShooterConstants.LowerShooterPF_F);
     lowerMotorConfig.closedLoop.p(Constants.ShooterConstants.LowerShooterPF_P);
-    lowerMotorConfig.closedLoop.maxMotion.maxAcceleration(Constants.ShooterConstants.Shooter_MaxAccel);
     lowerMotor.configure(lowerMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     feederMotor = new SparkMax(Constants.ShooterConstants.FeederMotorCANID, MotorType.kBrushless); // Velocity
@@ -227,11 +225,11 @@ public class ShooterSubsystem extends SubsystemBase {
   // SET RPMS
   private void setUpperMotorRPM(double rpm) {
 
-    upperMotor.getClosedLoopController().setSetpoint(rpm, Robot.isSimulation() ? ControlType.kVelocity : ControlType.kMAXMotionVelocityControl);
+    upperMotor.getClosedLoopController().setSetpoint(rpm, ControlType.kVelocity);
   }
 
   private void setLowerMotorRPM(double rpm) {
-    lowerMotor.getClosedLoopController().setSetpoint(rpm, Robot.isSimulation() ? ControlType.kVelocity : ControlType.kMAXMotionVelocityControl);
+    lowerMotor.getClosedLoopController().setSetpoint(rpm, ControlType.kVelocity);
   }
 
   private void toggleFeeder(boolean state) {
@@ -260,10 +258,10 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     if(Math.abs(getUpperMotorRPM() - upperMotorTargetRPM) > Constants.ShooterConstants.RPM_Tolerance)
-    upperMotorSimRPM += Math.signum(upperMotor.getClosedLoopController().getSetpoint()-upperMotorSimRPM) * 0.02 * Constants.ShooterConstants.Shooter_MaxAccel;
+    upperMotorSimRPM += Math.signum(upperMotor.getClosedLoopController().getSetpoint()-upperMotorSimRPM) * 0.02 * 4000;
 
     if(Math.abs(getLowerMotorRPM() - lowerMotorTargetRPM) > Constants.ShooterConstants.RPM_Tolerance)
-    lowerMotorSimRPM += Math.signum(lowerMotor.getClosedLoopController().getSetpoint()-lowerMotorSimRPM) * 0.02 * Constants.ShooterConstants.Shooter_MaxAccel;
+    lowerMotorSimRPM += Math.signum(lowerMotor.getClosedLoopController().getSetpoint()-lowerMotorSimRPM) * 0.02 * 4000;
 
     feederMotorSimRPM = feederMotor.getClosedLoopController().getSetpoint();
   }

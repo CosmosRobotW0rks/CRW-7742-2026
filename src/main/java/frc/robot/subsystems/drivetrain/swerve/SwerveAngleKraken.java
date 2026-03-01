@@ -2,21 +2,26 @@ package frc.robot.subsystems.drivetrain.swerve;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.logging.Logger;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.subsystems.drivetrain.swerve.common.BaseSwerveAngleMotor;
 import frc.robot.subsystems.drivetrain.swerve.common.SwerveMotorConfig;
+import frc.robot.utils.Logging;
 
 public class SwerveAngleKraken implements BaseSwerveAngleMotor{
 
@@ -113,6 +118,20 @@ public class SwerveAngleKraken implements BaseSwerveAngleMotor{
         {
             DriverStation.reportError("Failed to set Swerve TalonFX (ID: " + talonFX.getDeviceID() + ") target angle", false);
         }
+    }
+
+
+    static int i = 0;
+
+    @Override
+    public void resetAngleWithAbsEncoder(CANcoder cancoder) {
+        double absolutePosition = cancoder.getAbsolutePosition().getValueAsDouble();
+
+        Logging.stickyWarning(Integer.toString(i++), Double.toString(absolutePosition));
+
+        absolutePosition *= motorConfig.gearRatio();
+        
+        talonFX.setPosition(absolutePosition);
     }
 
 

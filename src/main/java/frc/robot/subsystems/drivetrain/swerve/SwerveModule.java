@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 public class SwerveModule {
     public SwerveModule() {
@@ -15,6 +17,8 @@ public class SwerveModule {
 
     public void init(SwerveModuleConfiguration config) {
         this.moduleConfig = config;
+        
+        resetCANCoderOffset();
     }
 
     public void stop()
@@ -52,6 +56,12 @@ public class SwerveModule {
         
         moduleConfig.angleMotor().setTargetAngle(state.angle);
         moduleConfig.driveMotor().setTargetVelocity(state.speedMetersPerSecond);
+    }
+
+    public void resetCANCoderOffset() {
+        if(moduleConfig == null) return;
+
+        moduleConfig.angleMotor().resetAngleWithAbsEncoder(moduleConfig.cancoder());
     }
 
     // SIMULATION

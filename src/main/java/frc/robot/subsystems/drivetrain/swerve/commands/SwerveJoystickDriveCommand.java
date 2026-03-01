@@ -29,6 +29,7 @@ public class SwerveJoystickDriveCommand extends Command {
     final DoubleSupplier supX;
     final DoubleSupplier supY;
     final DoubleSupplier supZ;
+    final DoubleSupplier supBoost;
 
     boolean xZero, yZero, zZero = true;
 
@@ -36,13 +37,15 @@ public class SwerveJoystickDriveCommand extends Command {
         SwerveSubsystem swerve,
         DoubleSupplier sup_x,
         DoubleSupplier sup_y,
-        DoubleSupplier sup_z) {
+        DoubleSupplier sup_z,
+        DoubleSupplier sup_boost) {
 
         this.swerve = swerve;
 
         this.supX = sup_x;
         this.supY = sup_y;
         this.supZ = sup_z;
+        this.supBoost = sup_boost;
 
         addRequirements(this.swerve);
     }
@@ -67,12 +70,19 @@ public class SwerveJoystickDriveCommand extends Command {
         ypercent = clamp(ypercent, -1, 1);
         zpercent = clamp(zpercent, -1, 1);
 
-        ChassisSpeeds focs = swerve.getTargetFieldRelativeSpeeds();
+        //ChassisSpeeds focs = swerve.getTargetFieldRelativeSpeeds();
+
+        double driveBoostAddition = supBoost.getAsDouble() * (DriveConstants.MaxSpeedWithBoost - DriveConstants.MaxDriveSpeed);
+        double maxDriveSpeedWithBoost = DriveConstants.MaxDriveSpeed + driveBoostAddition;
+
+        double rotBoostAddition = supBoost.getAsDouble() * (DriveConstants.MaxRotSpeedWithBoost - DriveConstants.MaxRotSpeed);
+        double maxRotSpeedWithBoost = DriveConstants.MaxRotSpeed + rotBoostAddition;
+
         
         double targetSpeeds[] = new double[] {
-            xpercent * DriveConstants.MaxDriveSpeed,
-            ypercent * DriveConstants.MaxDriveSpeed,
-            zpercent * DriveConstants.MaxRotSpeed
+            xpercent * maxDriveSpeedWithBoost,
+            ypercent * maxDriveSpeedWithBoost,
+            zpercent * maxRotSpeedWithBoost
         };
 
         //applyFilter(targetSpeeds, new double[]{focs.vxMetersPerSecond, focs.vyMetersPerSecond, focs.omegaRadiansPerSecond});

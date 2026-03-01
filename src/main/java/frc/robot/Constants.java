@@ -18,24 +18,41 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class ClimbConstants {
+    public static final int PCMCANID = 6;
+    public static final int ValveChannel = 1;
+  }
+
+  public static class IntakeConstants {
+    
+    public static final int IntakeRollerMotorCANID = 32;
+    public static final double IntakeRoller_TargetVelocity = 1000; // TBD
+    public static final double IntakeRollerPF_P = 0.00001;
+    public static final double IntakeRollerPF_F = 0.000167;
+    
+    public static final int IntakeAngleMotorCANID = 31;
+    public static final double IntakeAngleP_P = 0.2;
+    public static final double IntakeAngleP_OutMax = 0.2;
+    
+    public static final double Intake_TargetAngle = -10; // TBD
+    public static final double Intake_AngleTolerance = 0.5; // TBD
+  }
+
   public static class ShooterConstants {
-    public static final int FeederMotorCANID = 0;
-    public static final double Feeder_GearRatio = 5;
-    public static final double Feeder_TargetRPM = 100;
-    public static final double FeederPF_P = 0;
-    public static final double FeederPF_F = 0;
+    public static final int FeederMotorCANID = 33; 
+    public static final double Feeder_TargetRPM = 0; // TBD
+    public static final double FeederPF_P = 0; // TBD
+    public static final double FeederPF_F = 0; // TBD
 
     public static final int UpperShooterMotorCANID = 35;
-    public static final double UpperShooterPF_P = 0;
-    public static final double UpperShooterPF_F = 0;
+    public static final double UpperShooterPF_P = 0.000012;
+    public static final double UpperShooterPF_F = 0.00216;
     
-    public static final int LowerShooterMotorCANID = 11;
-    public static final double LowerShooterPF_P = 0;
-    public static final double LowerShooterPF_F = 0;
-    
-    public static final double Shooter_MaxAccel = 4000;
+    public static final int LowerShooterMotorCANID = 34;
+    public static final double LowerShooterPF_P = 0.000012;
+    public static final double LowerShooterPF_F = 0.00223;
 
-    public static final double RPM_Tolerance = 50;
+    public static final double RPM_Tolerance = 100; // TBD
 
   }
 
@@ -72,7 +89,8 @@ public final class Constants {
 
     // TODO -- Shuffleboard selection ?
 
-    public static final double MaxDriveSpeed = 3.5;
+    public static final double MaxDriveSpeed = 2;
+    public static final double MaxSpeedWithBoost = 5;
     
     // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s
@@ -82,6 +100,9 @@ public final class Constants {
     public static final double MaxDriveDeccel = 30; // m/s^2
 
     public static final double MaxRotSpeed = Math.PI * 2 * 0.5; // rad/s
+    public static final double MaxRotSpeedWithBoost = Math.PI * 2 * 0.8; // rad/s
+
+
     public static final double MaxRotAccel = Math.PI * 2 * 6; // rad/s^2
     public static final double MaxRotDeccel = Math.PI * 2 * 6; // rad/s^2
     
@@ -120,27 +141,22 @@ public final class Constants {
     public static final double DrivePeakVoltage = 12;
 
     public static final Map<SwerveModuleLocation, Integer> AngleCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 12,
-        SwerveModuleLocation.FRONT_RIGHT, 14,
-        SwerveModuleLocation.BACK_LEFT, 16,
-        SwerveModuleLocation.BACK_RIGHT, 18);
+        SwerveModuleLocation.FRONT_LEFT, 42,
+        SwerveModuleLocation.FRONT_RIGHT, 44,
+        SwerveModuleLocation.BACK_LEFT, 46,
+        SwerveModuleLocation.BACK_RIGHT, 48);
 
     public static final Map<SwerveModuleLocation, Integer> DriveCANIDMap = Map.of(
-        SwerveModuleLocation.FRONT_LEFT, 11,
-        SwerveModuleLocation.FRONT_RIGHT, 13,
-        SwerveModuleLocation.BACK_LEFT, 15,
-        SwerveModuleLocation.BACK_RIGHT, 17);
+        SwerveModuleLocation.FRONT_LEFT, 41,
+        SwerveModuleLocation.FRONT_RIGHT, 43,
+        SwerveModuleLocation.BACK_LEFT, 45,
+        SwerveModuleLocation.BACK_RIGHT, 47);
 
-    // Absolute encoder not implemented yet
-    public static final int ABSENCPORTID_FL = -1;
-    public static final int ABSENCPORTID_FR = -1;
-    public static final int ABSENCPORTID_BL = -1;
-    public static final int ABSENCPORTID_BR = -1;
-
-    public static final double ABSENCOFFSET_FL = 0;
-    public static final double ABSENCOFFSET_FR = 0;
-    public static final double ABSENCOFFSET_BL = 0;
-    public static final double ABSENCOFFSET_BR = 0;
+    public static final Map<SwerveModuleLocation, Integer> EncoderCANIDMap = Map.of(
+        SwerveModuleLocation.FRONT_LEFT,  21,
+        SwerveModuleLocation.FRONT_RIGHT, 22,
+        SwerveModuleLocation.BACK_LEFT,   23,
+        SwerveModuleLocation.BACK_RIGHT,  24);
 
   }
 }
