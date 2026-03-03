@@ -71,6 +71,14 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.waitUntil(() -> isClosed()));
     }
 
+    public void zeroEncoder() {
+        angleMotor.getEncoder().setPosition(0);
+    }
+
+    public double getAngle() {
+        return angleMotor.getEncoder().getPosition();
+    }
+
     @Override
     public void periodic() {
         switch (state) {

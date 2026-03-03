@@ -56,7 +56,7 @@ public class RobotContainer {
     climbSubsystem = new ClimbSubsystem();
 
     pdp = new PowerDistribution(0, ModuleType.kCTRE);
-    healthMonitoring = new HealthMonitoring(pdp, swerveSubsystem);
+    healthMonitoring = new HealthMonitoring(pdp, swerveSubsystem, intakeSubsystem);
 
     configureBindings();
 
