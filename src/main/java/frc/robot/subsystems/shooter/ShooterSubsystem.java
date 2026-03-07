@@ -1,31 +1,14 @@
 package frc.robot.subsystems.shooter;
 
-import java.security.PublicKey;
-
 import com.revrobotics.PersistMode;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,7 +18,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.utils.EntryUtils;
+import frc.robot.utils.FieldUtils;
 import frc.robot.utils.Logging;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.auto.AutoHelper;
+import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -61,32 +50,33 @@ public class ShooterSubsystem extends SubsystemBase {
   private double lowerMotorTargetRPM = 0;
   private boolean calibrating = false;
 
-  private double distanceToHub = 0;
+  private final SwerveSubsystem swerveSubsystem;
 
 
+  public ShooterSubsystem(SwerveSubsystem swerveSubsystem) {
 
-  public ShooterSubsystem() {
-
+    this.swerveSubsystem = swerveSubsystem;
 
     // Load Calibration
+    calibration = new ShooterCalibration();
     int selectedSlot = ShooterCalibration.getSelectedCalibrationSlot();
     if(selectedSlot == -1)
     {
       Logging.stickyError("Shooter Calibration Error", "An error occured while reading the selected shootercalib slot");
-      return;
-    }
-
-    calibration = ShooterCalibration.loadFromSlot(selectedSlot);
-    if(calibration == null && selectedSlot != 0)
-    {
-      Logging.stickyError("Shooter Calibration Error", "An error occured while reading shootercalib slot " + selectedSlot);
-      return;
-    }
-
-    if(calibration != null) Logging.infoMsg("Shooter Calibration Loaded", "Successfully loaded shootercalib slot " + selectedSlot);
-    else
-    {
-      Logging.stickyWarning("Shooter Calibration Warning", "Shooter calibration not found. Shooter won't be able to shoot.");
+    } else {
+      ShooterCalibration loadedCalibration = ShooterCalibration.loadFromSlot(selectedSlot);
+      if(loadedCalibration == null && selectedSlot != 0)
+      {
+        Logging.stickyError("Shooter Calibration Error", "An error occured while reading shootercalib slot " + selectedSlot);
+      }
+      else if(loadedCalibration != null) {
+        calibration = loadedCalibration;
+        Logging.infoMsg("Shooter Calibration Loaded", "Successfully loaded shootercalib slot " + selectedSlot);
+      }
+      else
+      {
+        Logging.stickyWarning("Shooter Calibration Warning", "Shooter calibration not found. Shooter won't be able to shoot.");
+      }
     }
 
     // Motors
@@ -152,12 +142,35 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // CALIB SUBSYS CONNECTION
 
-  public void setCalibrationRPM(double rpm)
+  public ShooterCalibration getCalibration() {
+    return calibration;
+  }
+
+  public void reloadCalibration() {
+    int selectedSlot = ShooterCalibration.getSelectedCalibrationSlot();
+    if (selectedSlot == -1) {
+      Logging.stickyError("Shooter Calibration Error", "An error occured while reading the selected shootercalib slot during reload");
+      return;
+    }
+
+    ShooterCalibration loadedCalibration = ShooterCalibration.loadFromSlot(selectedSlot);
+    if (loadedCalibration == null) {
+      calibration = new ShooterCalibration();
+      Logging.stickyWarning("Shooter Calibration Warning", "Failed to reload shooter calibration slot " + selectedSlot + ". Using empty calibration.");
+    } else {
+      calibration = loadedCalibration;
+      Logging.infoMsg("Shooter Calibration Reloaded", "Reloaded shootercalib slot " + selectedSlot);
+    }
+
+    refreshShooterTargetRPMs();
+  }
+
+  public void setCalibrationRPMs(double upperRPM, double lowerRPM)
   {
     calibrating = true;
 
-    upperMotorTargetRPM = rpm;
-    lowerMotorTargetRPM = rpm;
+    upperMotorTargetRPM = upperRPM;
+    lowerMotorTargetRPM = lowerRPM;
   }
 
   public void exitCalibrationMode()
@@ -172,32 +185,52 @@ public class ShooterSubsystem extends SubsystemBase {
   {
     if(calibrating) return;
 
-
-    double distance = getDistanceToHub();
+    double shooterDistance = getShooterDistanceToHub();
 
     if(calibration == null) return;
 
-    double rpm = calibration.getRPMForDistance(distance);
+    Translation2d rpms = calibration.getRPMForDistance(shooterDistance);
 
-    upperMotorTargetRPM = rpm;
-    lowerMotorTargetRPM = rpm;
+    if(rpms == null) return;
+
+    upperMotorTargetRPM = rpms.getX();
+    lowerMotorTargetRPM = rpms.getY();
   }
 
-  public double getDistanceToHub()
+  public double getRobotDistanceToHub()
   {
-    ShooterDistCalcMode mode = distCalcModeChooser.getSelected();
-    
     double dist = -1;
 
-    if(mode == ShooterDistCalcMode.MANUAL) dist = manualShooterDistanceEntry.get();
-    else // VISION_BASED
-    {
-      // TODO: Get from vision
+    Pose2d robotPose = swerveSubsystem.getRobotPose();
+
+    if (robotPose != null) {
+      Translation2d robotPosition = robotPose.getTranslation();
+      Translation2d targetPosition = FieldUtils.GetAllianceBasedHubCenter();
+      
+      dist = robotPosition.getDistance(targetPosition);
     }
 
-    distanceToHub = dist;
     return dist;
 
+  }
+
+
+  public double getShooterDistanceToHub()
+  {
+    ShooterDistCalcMode mode = distCalcModeChooser.getSelected();
+
+    double dist = -1;
+
+    if(mode == ShooterDistCalcMode.MANUAL) {
+      dist = manualShooterDistanceEntry.get();
+    }
+    else
+    {
+      Pose2d robotPose = swerveSubsystem.getRobotPose();
+      dist = AutoHelper.GetShooterDistanceToHub(robotPose);
+    }
+
+    return dist;
   }
 
   // BOOL CHECKS
@@ -210,11 +243,11 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   // GET RPMS
-  private double getUpperMotorRPM() {
+  public double getUpperMotorRPM() {
     return Robot.isSimulation() ? upperMotorSimRPM : upperMotor.getEncoder().getVelocity();
   }
 
-  private double getLowerMotorRPM() {
+  public double getLowerMotorRPM() {
     return Robot.isSimulation() ? lowerMotorSimRPM : lowerMotor.getEncoder().getVelocity();
   }
 
@@ -245,6 +278,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    double robotDistanceToHub = getRobotDistanceToHub();
+    double shooterDistanceToHub = getShooterDistanceToHub();
+    refreshShooterTargetRPMs();
+
     SmartDashboard.putBoolean("Shooter/ShooterAtTarget", isShooterAtTargetRPM());
     SmartDashboard.putBoolean("Shooter/FeederAtTarget", isFeederAtTargetRPM());
     
@@ -257,7 +294,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Shooter/CalibrationSlot", calibration == null ? -1 : calibration.getSlot());
 
-    SmartDashboard.putNumber("Shooter/DistanceToHub", distanceToHub);
+    // NOTE: Only shooter distance to hub is influenced by the manual distance. Robot distance to hub is always calculated with the drivetrain pose.
+    SmartDashboard.putNumber("Shooter/ShooterDistanceToHub", shooterDistanceToHub); 
+    SmartDashboard.putNumber("Shooter/RobotDistanceToHub", robotDistanceToHub);
   }
 
   @Override

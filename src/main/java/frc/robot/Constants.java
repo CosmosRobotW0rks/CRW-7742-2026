@@ -10,12 +10,17 @@ import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleLocation;
 
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+  }
+
+  public static class FieldConstants {
+    public static final Translation2d HubCenter = new Translation2d(4.028, 4.01);
   }
 
   public static class ClimbConstants {
@@ -54,6 +59,8 @@ public final class Constants {
     public static final double LowerShooterPF_F = 0.00223;
 
     public static final double RPM_Tolerance = 200; // TBD
+
+    public static final Translation2d ShooterOffset = new Translation2d(-0.325, 0.0);
 
   }
 
