@@ -11,20 +11,22 @@ import frc.robot.subsystems.drivetrain.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.neopixel.NeoPixelSubsystem;
 import frc.robot.subsystems.shooter.ShooterCalibratorSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.utils.Logging;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer {
 
-  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.Logitech);
+  private final CommandJoystick driver = new CommandJoystick(JoystickOptions.DualSense);
+
+  private final NeoPixelSubsystem neopixelSubsystem;
 
   private final SwerveSubsystem swerveSubsystem;
   private final VisionSubsystem visionSubsystem;
@@ -41,6 +43,9 @@ public class RobotContainer {
    */
 
   public RobotContainer() {
+    neopixelSubsystem = new NeoPixelSubsystem();
+    
+
     swerveSubsystem = new SwerveSubsystem();
     intakeSubsystem = new IntakeSubsystem();
     shooterSubsystem = new ShooterSubsystem();
@@ -81,7 +86,6 @@ public class RobotContainer {
   double time = 0;
 
   public Command getAutonomousCommand() {
-
     return Commands.runOnce(() -> time = Timer.getFPGATimestamp()).andThen(new PathPlannerAuto("TESTAUTO"))
         .andThen(() -> {
           System.out.println("AUTO TIME: " + (Timer.getFPGATimestamp() - time));
