@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command Toggle() {
         return Commands.deferredProxy(() -> {
-            if (state == IntakeState.CLOSED)
+            if (state == IntakeState.CLOSED || state == IntakeState.IDLE)
                 return Open();
             else
                 return Close();
