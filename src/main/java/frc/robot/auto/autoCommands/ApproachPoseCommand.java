@@ -1,5 +1,9 @@
 package frc.robot.auto.autoCommands;
 
+import java.util.function.Supplier;
+
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -18,25 +22,16 @@ import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 public class ApproachPoseCommand extends Command {
 
     private final SwerveSubsystem swerve;
-    private final Pose2d targetPose;
-    private final double maxSpeedMPS;
 
     private final PIDController pid_x;
     private final PIDController pid_y;
     private final ProfiledPIDController pid_z;
 
-    private final double xErrorThresholdM;
-    private final double yErrorThresholdM;
-    private final Rotation2d rotErrorThreshold;
+    private final ApproachPoseConfiguration config;
 
     public ApproachPoseCommand(SwerveSubsystem swerve, ApproachPoseConfiguration config) {
         this.swerve = swerve;
-        this.targetPose = config.target;
-        this.maxSpeedMPS = config.maxSpeedMPS;
-
-        this.xErrorThresholdM = config.xErrorThresholdM;
-        this.yErrorThresholdM = config.yErrorThresholdM;
-        this.rotErrorThreshold = config.rotErrorThreshold;
+        this.config = config;
 
         PIDConstants translationPID = AutoConstants.ApproachPose_Translation_PID;
         PIDConstants rotationPID = AutoConstants.ApproachPose_Rotation_PID;
@@ -64,22 +59,23 @@ public class ApproachPoseCommand extends Command {
 
     @Override
     public void execute() {
-        Pose2d current = swerve.getRobotPose();
+        Pose2d currentPose = swerve.getRobotPose();
+        Pose2d targetPose = config.poseSupplier.get();
 
-        double xSpeed = pid_x.calculate(current.getX(), targetPose.getX());
+        double xSpeed = config.translate ? pid_x.calculate(currentPose.getX(), targetPose.getX()) : 0;
 
-        double ySpeed = pid_y.calculate(current.getY(), targetPose.getY());
+        double ySpeed = config.translate ? pid_y.calculate(currentPose.getY(), targetPose.getY()) : 0;
 
-        double zSpeed = -pid_z.calculate(current.getRotation().getRadians(), targetPose.getRotation().getRadians());
+        double zSpeed = config.rotate ? -pid_z.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians()) : 0;
 
         double mag = Math.hypot(xSpeed, ySpeed);
 
-        if (mag > maxSpeedMPS) {
-            xSpeed = (xSpeed / mag) * maxSpeedMPS;
-            ySpeed = (ySpeed / mag) * maxSpeedMPS;
+        if (mag > config.maxSpeedMPS) {
+            xSpeed = (xSpeed / mag) * config.maxSpeedMPS;
+            ySpeed = (ySpeed / mag) * config.maxSpeedMPS;
         }
 
-        ChassisSpeeds cs = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, current.getRotation());
+        ChassisSpeeds cs = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, currentPose.getRotation());
 
         swerve.setTargetRobotRelativeSpeeds(cs);
 
@@ -93,19 +89,28 @@ public class ApproachPoseCommand extends Command {
 
     @Override
     public boolean isFinished() {
+
+        if(!config.finishable) return false;
+
+        Pose2d targetPose = config.poseSupplier.get();
         Pose2d error = swerve.getRobotPose().relativeTo(targetPose);
 
         SmartDashboard.putNumberArray("Auto/ApproachPoseCmd/PoseError", new double[]{error.getX(), error.getY(), error.getRotation().getRadians()});
 
 
-        return Math.abs(error.getX()) < xErrorThresholdM &&
-                Math.abs(error.getY()) < yErrorThresholdM &&
-                Math.abs(error.getRotation().getRadians()) < rotErrorThreshold.getRadians();
+        return Math.abs(error.getX()) < config.xErrorThresholdM &&
+                Math.abs(error.getY()) < config.yErrorThresholdM &&
+                Math.abs(error.getRotation().getRadians()) < config.rotErrorThreshold.getRadians();
     }
 
     public static class ApproachPoseConfiguration {
 
-        private final Pose2d target;
+        private final Supplier<Pose2d> poseSupplier;
+
+        private boolean translate = true;
+        private boolean rotate = true;
+
+        private boolean finishable = true;
 
         private double maxSpeedMPS = AutoConstants.ApproachPose_Default_maxSpeedMPS;
         private Rotation2d maxAngularVelocity = AutoConstants.ApproachPose_Default_maxAngVelocity;
@@ -115,25 +120,44 @@ public class ApproachPoseCommand extends Command {
         private double yErrorThresholdM = AutoConstants.ApproachPose_Default_translationErrorThresholdM;
         private Rotation2d rotErrorThreshold = AutoConstants.ApproachPose_Default_rotationErrorThreshold;
 
-        public ApproachPoseConfiguration(Pose2d pose) {
-            target = pose;
+        // CTORS
+
+        private ApproachPoseConfiguration(Pose2d pose) {
+            poseSupplier = () -> pose;
         }
 
-        public ApproachPoseConfiguration(Translation2d t2d) {
-            target = new Pose2d(t2d, Rotation2d.kZero);
+        private ApproachPoseConfiguration(Supplier<Pose2d> poseSup) {
+            poseSupplier = poseSup;
         }
 
-        public ApproachPoseConfiguration(Translation2d t2d, Rotation2d r2d) {
-            target = new Pose2d(t2d, r2d);
+        // STATIC CTORS
+        public static ApproachPoseConfiguration fromPose(Pose2d pose)
+        {
+            return new ApproachPoseConfiguration(pose);
         }
 
-        public ApproachPoseConfiguration(double x, double y) {
-            target = new Pose2d(new Translation2d(x, y), Rotation2d.kZero);
+        public static ApproachPoseConfiguration fromPose(Supplier<Pose2d> pose)
+        {
+            return new ApproachPoseConfiguration(pose);
         }
 
-        public ApproachPoseConfiguration(double x, double y, Rotation2d r2d) {
-            target = new Pose2d(new Translation2d(x, y), r2d);
+        public static ApproachPoseConfiguration fromRotation(Rotation2d r2d) {
+            return new ApproachPoseConfiguration(new Pose2d(Translation2d.kZero, r2d)).toggleMovement(false, true);
         }
+
+        public static ApproachPoseConfiguration fromRotation(Supplier<Rotation2d> r2d) {
+            return new ApproachPoseConfiguration(() -> new Pose2d(Translation2d.kZero, r2d.get())).toggleMovement(false, true);
+        }
+
+        public static ApproachPoseConfiguration fromTranslation(Translation2d t2d) {
+            return new ApproachPoseConfiguration(new Pose2d(t2d, Rotation2d.kZero)).toggleMovement(true, false);
+        }
+
+        public static ApproachPoseConfiguration fromTranslation(Supplier<Translation2d> t2d) {
+            return new ApproachPoseConfiguration(() -> new Pose2d(t2d.get(), Rotation2d.kZero)).toggleMovement(true, false);
+        }
+
+        // MODIFIERS
 
         public ApproachPoseConfiguration withMaxSpeed(double maxSpeed) {
             this.maxSpeedMPS = maxSpeed;
@@ -159,6 +183,19 @@ public class ApproachPoseCommand extends Command {
             this.xErrorThresholdM = xErrorThresholdM;
             this.yErrorThresholdM = yErrorThresholdM;
             this.rotErrorThreshold = rotErrorThreshold;
+            return this;
+        }
+
+        public ApproachPoseConfiguration toggleMovement(boolean translate, boolean rotate)
+        {
+            this.translate = translate;
+            this.rotate = rotate;
+            return this;
+        }
+
+        public ApproachPoseConfiguration toggleFinishable(boolean finishable)
+        {
+            this.finishable = finishable;
             return this;
         }
     }
