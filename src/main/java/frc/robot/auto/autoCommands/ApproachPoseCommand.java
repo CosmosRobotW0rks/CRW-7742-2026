@@ -75,9 +75,7 @@ public class ApproachPoseCommand extends Command {
             ySpeed = (ySpeed / mag) * config.maxSpeedMPS;
         }
 
-        ChassisSpeeds cs = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, currentPose.getRotation());
-
-        swerve.setTargetRobotRelativeSpeeds(cs);
+        swerve.setTargetFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed);
 
         SmartDashboard.putNumberArray("Auto/ApproachPoseCmd/TargetSpeeds",new double[]{xSpeed, ySpeed, zSpeed});
     }
