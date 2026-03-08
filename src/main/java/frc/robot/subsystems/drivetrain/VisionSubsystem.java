@@ -21,19 +21,26 @@ import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    PhotonCamera camera = new PhotonCamera("maincam");
+    PhotonCamera cameraFw = new PhotonCamera("maincam");
+    PhotonCamera cameraAngled = new PhotonCamera("angledcam");
 
-    public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
-
-    // TODO: Put robot to cam values
-    public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0, 0.0, 0),
+    public static final Transform3d kRobotToFwCam = new Transform3d(new Translation3d(0, 0.0, 0),
             new Rotation3d(0, 0, 0));
 
-    private PhotonPoseEstimator estimator = new PhotonPoseEstimator(kTagLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
+    public static final Transform3d kRobotToAngledCam = new Transform3d(new Translation3d(0, 0.0, 0),
+            new Rotation3d(0, 0, 0));
 
+    private PhotonPoseEstimator fwEstimator = new PhotonPoseEstimator(kTagLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToFwCam);
+    private PhotonPoseEstimator angledEstimator = new PhotonPoseEstimator(kTagLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToAngledCam);
+
+            
+    public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+
+    
     private SwerveSubsystem swerveDt;
-
+   
     public VisionSubsystem(SwerveSubsystem swerveDt) {
         this.swerveDt = swerveDt;
     }
@@ -43,6 +50,16 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        
+        handleCamera(cameraFw, fwEstimator);
+        handleCamera(cameraAngled, angledEstimator);
+
+        SmartDashboard.putNumber("VISION/SUCC", sucC);
+        SmartDashboard.putNumber("VISION/TOTALC", totalC);
+    }
+
+    void handleCamera(PhotonCamera camera, PhotonPoseEstimator estimator)
+    {
         var results = camera.getAllUnreadResults();
 
         if (results.size() == 0)
@@ -60,14 +77,12 @@ public class VisionSubsystem extends SubsystemBase {
             Pose2d rotatedP2d = new Pose2d(p2d.getX(), p2d.getY(), p2d.getRotation().rotateBy(Rotation2d.kZero));
             swerveDt.addVisionMeasurement(rotatedP2d, visionEst.get().timestampSeconds);
 
-            SmartDashboard.putNumberArray("VISION/T3D", new Double[] { p3d.getX(), p3d.getY(), p3d.getZ() });
+            SmartDashboard.putNumberArray("VISION/T3D_" + camera.getName(), new Double[] { p3d.getX(), p3d.getY(), p3d.getZ() });
 
             sucC++;
         }
 
         totalC++;
 
-        SmartDashboard.putNumber("VISION/SUCC", sucC);
-        SmartDashboard.putNumber("VISION/TOTALC", totalC);
     }
 }

@@ -127,8 +127,6 @@ public class SwerveAngleKraken implements BaseSwerveAngleMotor{
     public void resetAngleWithAbsEncoder(CANcoder cancoder) {
         double absolutePosition = cancoder.getAbsolutePosition().getValueAsDouble();
 
-        Logging.stickyWarning(Integer.toString(i++), Double.toString(absolutePosition));
-
         absolutePosition *= motorConfig.gearRatio();
         
         talonFX.setPosition(absolutePosition);

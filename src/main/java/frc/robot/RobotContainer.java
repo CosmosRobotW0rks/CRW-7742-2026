@@ -77,6 +77,8 @@ public class RobotContainer {
 
     driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());
 
+    driver.getBtnUp().toggleOnTrue(climbSubsystem.Toggle());
+
   }
 
   double time = 0;

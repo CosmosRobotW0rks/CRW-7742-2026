@@ -27,8 +27,8 @@ public class ClimbSubsystem extends SubsystemBase {
         compressor = new Compressor(ClimbConstants.PCMCANID, PneumaticsModuleType.CTREPCM);
         solenoid = new Solenoid(ClimbConstants.PCMCANID, PneumaticsModuleType.CTREPCM, ClimbConstants.ValveChannel);
 
-        compressor.disable();
-        //compressor.enableDigital();
+        //compressor.disable();
+        compressor.enableDigital();
 
         SmartDashboard.putBoolean("Climb/State", state == ClimbState.UP ? true : false);
     }

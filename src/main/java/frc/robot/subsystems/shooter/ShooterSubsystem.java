@@ -125,11 +125,10 @@ public class ShooterSubsystem extends SubsystemBase {
           setLowerMotorRPM(lowerMotorTargetRPM);
         },
         () -> {
-          
+          upperMotor.stopMotor();
+          lowerMotor.stopMotor();
           upperMotorSimRPM = 0;
           lowerMotorSimRPM = 0;
-          setUpperMotorRPM(0);
-          setLowerMotorRPM(0);
         });
   }
 
