@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDPattern.GradientType;
 import edu.wpi.first.wpilibj.util.Color;
@@ -20,8 +21,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class NeoPixelSubsystem extends SubsystemBase {
     private final AddressableLED mLed; 
     private final AddressableLEDBuffer mLedBuffer;
-
-    private int condition = 0;
 
     public enum NeoPixelCondition{
         ENABLED,
@@ -38,6 +37,8 @@ public class NeoPixelSubsystem extends SubsystemBase {
         mLed = new AddressableLED(9);
         mLedBuffer = new AddressableLEDBuffer(18);
         mLed.setLength(mLedBuffer.getLength());
+        mLed.setData(mLedBuffer);
+        mLed.start();
 
         for(NeoPixelCondition cond : NeoPixelCondition.values())
         {
@@ -59,8 +60,13 @@ public class NeoPixelSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        condMap.put(NeoPixelCondition.ENABLED, DriverStation.isEnabled());
+
+
+        // Cond checkers
 
         if(getCondState(NeoPixelCondition.ENABLED)) LEDPattern.solid(Color.kAqua).applyTo(mLedBuffer);
+        else LEDPattern.solid(Color.kRed).applyTo(mLedBuffer);
         
         if(getCondState(NeoPixelCondition.PREPARING_SHOOT)) 
             LEDPattern.gradient(GradientType.kContinuous, Color.kRed, Color.kOrangeRed)
