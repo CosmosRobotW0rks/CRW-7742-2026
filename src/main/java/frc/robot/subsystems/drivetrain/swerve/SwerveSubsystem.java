@@ -381,10 +381,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         Pose2d pose = Constants.DriveConstants.defaultStartPose;
 
-        boolean isRed = AllianceUtils.isRedAlliance();
-
-        if (isRed)
-            pose = AllianceUtils.FlipPose2d(pose);
+        pose = AllianceUtils.FlipIfRed(pose);
 
         estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
 

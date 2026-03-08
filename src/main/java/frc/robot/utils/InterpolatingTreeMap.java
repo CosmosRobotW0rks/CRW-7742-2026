@@ -51,6 +51,11 @@ public class InterpolatingTreeMap<K, V> {
     m_map.put(key, value);
   }
 
+  /** Removes the entry for the given key. */
+  public V remove(K key) {
+    return m_map.remove(key);
+  }
+
   public boolean remove(K key, V value) {
     return m_map.remove(key, value);
   }
@@ -95,4 +100,3 @@ public class InterpolatingTreeMap<K, V> {
     m_map.clear();
   }
 }
-

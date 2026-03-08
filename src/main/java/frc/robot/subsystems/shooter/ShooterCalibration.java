@@ -1,11 +1,15 @@
 package frc.robot.subsystems.shooter;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -13,10 +17,15 @@ import frc.robot.utils.InterpolatingTreeMap;
 
 public class ShooterCalibration {
 
-    private InterpolatingTreeMap<Double, Double> interpolatingMap = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(),
-            Interpolator.forDouble());
+    private static final Interpolator<Translation2d> TRANSLATION_INTERPOLATOR = (start, end, t) -> new Translation2d(
+            start.getX() + (end.getX() - start.getX()) * t,
+            start.getY() + (end.getY() - start.getY()) * t);
 
-    private HashMap<Double, Double> measurements = new HashMap<Double, Double>();
+    private InterpolatingTreeMap<Double, Translation2d> interpolatingMap = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(),
+            TRANSLATION_INTERPOLATOR);
+
+    private HashMap<Double, Translation2d> measurements = new HashMap<Double, Translation2d>();
+    private List<Double> measurementHistory = new ArrayList<>();
     private String description;
     private int slot;
 
@@ -24,8 +33,63 @@ public class ShooterCalibration {
     };
 
     
-    private record ShooterCalib(String description, HashMap<Double, Double> knownValues) {
+    private static class ShooterCalib {
+        public String description;
+        public List<CalibrationRecord> measurements;
+        public Map<String, CalibrationRPMs> knownValues;
+
+        public ShooterCalib() {
+        }
+
+        public ShooterCalib(String description, List<CalibrationRecord> measurements) {
+            this.description = description;
+            this.measurements = measurements;
+        }
+
+        public List<CalibrationRecord> getRecords() {
+            if (measurements != null) {
+                return measurements;
+            }
+
+            if (knownValues == null) {
+                return Collections.emptyList();
+            }
+
+            List<CalibrationRecord> records = new ArrayList<>();
+            knownValues.forEach((distanceString, rpms) -> {
+                if (distanceString == null || rpms == null) {
+                    return;
+                }
+
+                try {
+                    double shooterDistance = Double.parseDouble(distanceString);
+                    records.add(new CalibrationRecord(shooterDistance, rpms.upperRPM(), rpms.lowerRPM()));
+                } catch (NumberFormatException ignored) {
+                }
+            });
+
+            records.sort(Comparator.comparingDouble(record -> record.distance));
+            return records;
+        }
     };
+
+    private record CalibrationRPMs(double upperRPM, double lowerRPM) {
+    }
+
+    private static class CalibrationRecord {
+        public double distance;
+        public double upperRPM;
+        public double lowerRPM;
+
+        public CalibrationRecord() {
+        }
+
+        public CalibrationRecord(double distance, double upperRPM, double lowerRPM) {
+            this.distance = distance;
+            this.upperRPM = upperRPM;
+            this.lowerRPM = lowerRPM;
+        }
+    }
 
     private static final int DEFAULT_SLOT = 0;
 
@@ -33,21 +97,54 @@ public class ShooterCalibration {
         
     }
 
-    public double getRPMForDistance(double distance) {
-        return interpolatingMap.get(distance);
+    public Translation2d getRPMForDistance(double shooterDistance) {
+        if (measurements.isEmpty()) {
+            return null;
+        }
+        return interpolatingMap.get(shooterDistance);
     }
 
     public int getMeasurementCount() {
         return measurements.size();
     }
     
-    public void addMeasurement(double distance, double rpm) {
-        measurements.put(distance, rpm);
-        interpolatingMap.put(distance, rpm);
+    public void addMeasurement(double shooterDistance, double upperRPM, double lowerRPM) {
+        Translation2d rpms = new Translation2d(upperRPM, lowerRPM);
+        measurements.put(shooterDistance, rpms);
+        interpolatingMap.put(shooterDistance, rpms);
+        measurementHistory.add(shooterDistance);
     }
 
-    public boolean removeMeasurement(double distance, double rpm) {
-        return measurements.remove(distance, rpm) && interpolatingMap.remove(distance, rpm);
+    public boolean removeMeasurement(double shooterDistance, double upperRPM, double lowerRPM) {
+        Translation2d removedMeasurement = measurements.remove(shooterDistance);
+        Translation2d removedInterpolated = interpolatingMap.remove(shooterDistance);
+        boolean removed = removedMeasurement != null || removedInterpolated != null;
+        if (removed) {
+            measurementHistory.remove(shooterDistance);
+        }
+        return removed;
+    }
+
+    public boolean removeLastMeasurement() {
+        if (measurementHistory.isEmpty()) {
+            return false;
+        }
+
+        double lastShooterDistance = measurementHistory.remove(measurementHistory.size() - 1);
+        Translation2d rpms = measurements.remove(lastShooterDistance);
+
+        if (rpms == null) {
+            return false;
+        }
+
+        interpolatingMap.remove(lastShooterDistance);
+        return true;
+    }
+
+    public void clearAllMeasurements() {
+        measurements.clear();
+        interpolatingMap.clear();
+        measurementHistory.clear();
     }
 
     public boolean save(int slot, String description) {
@@ -59,7 +156,11 @@ public class ShooterCalibration {
             File file = getSlotFile(slot);
 
 
-            ShooterCalib calib = new ShooterCalib(description, measurements);
+            List<CalibrationRecord> serializedMeasurements = new ArrayList<>();
+            measurements.forEach((shooterDistance, rpms) -> serializedMeasurements.add(new CalibrationRecord(shooterDistance, rpms.getX(), rpms.getY())));
+            serializedMeasurements.sort(Comparator.comparingDouble(record -> record.distance));
+
+            ShooterCalib calib = new ShooterCalib(description, serializedMeasurements);
 
             mapper.writerWithDefaultPrettyPrinter()
                     .writeValue(file, calib);
@@ -85,7 +186,7 @@ public class ShooterCalibration {
         return slot;
     }
 
-    public Map<Double, Double> getMeasurements()
+    public Map<Double, Translation2d> getMeasurements()
     {
         return Collections.unmodifiableMap(measurements);
     }
@@ -104,15 +205,7 @@ public class ShooterCalibration {
 
             ShooterCalib slotData = mapper.readValue(file, ShooterCalib.class);
 
-            Double[] measurementKeys = slotData.knownValues.keySet().toArray(new Double[0]);
-
-            for(int i = 0; i<slotData.knownValues.size(); i++)
-            {
-                Double distance = measurementKeys[i];
-                Double rpm = slotData.knownValues.get(distance);
-                
-                calib.addMeasurement(distance, rpm);
-            }
+            slotData.getRecords().forEach(record -> calib.addMeasurement(record.distance, record.upperRPM, record.lowerRPM));
 
             calib.description = slotData.description;
             calib.slot = slot;

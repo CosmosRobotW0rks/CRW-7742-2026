@@ -48,7 +48,7 @@ public class RobotContainer {
 
     swerveSubsystem = new SwerveSubsystem();
     intakeSubsystem = new IntakeSubsystem();
-    shooterSubsystem = new ShooterSubsystem();
+    shooterSubsystem = new ShooterSubsystem(swerveSubsystem);
     shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
     climbSubsystem = new ClimbSubsystem();
@@ -67,10 +67,6 @@ public class RobotContainer {
         () -> -driver.getLeftX(),
         () -> -driver.getRightX(),
         () -> driver.getR2()));
-
-        
-    driver.getPovDown().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(-100));
-    driver.getPovUp().onTrue(shooterCalibratorSubsystem.IncreaseRPMCommand(100));
 
     
     // driver.getBtnLeft().onTrue(climbSubsystem.Toggle());

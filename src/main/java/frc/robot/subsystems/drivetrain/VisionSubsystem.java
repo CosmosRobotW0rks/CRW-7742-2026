@@ -57,7 +57,7 @@ public class VisionSubsystem extends SubsystemBase {
             Pose3d p3d = visionEst.get().estimatedPose;
             Pose2d p2d = p3d.toPose2d();
 
-            Pose2d rotatedP2d = new Pose2d(p2d.getX(), p2d.getY(), p2d.getRotation().rotateBy(Rotation2d.k180deg));
+            Pose2d rotatedP2d = new Pose2d(p2d.getX(), p2d.getY(), p2d.getRotation().rotateBy(Rotation2d.kZero));
             swerveDt.addVisionMeasurement(rotatedP2d, visionEst.get().timestampSeconds);
 
             SmartDashboard.putNumberArray("VISION/T3D", new Double[] { p3d.getX(), p3d.getY(), p3d.getZ() });
