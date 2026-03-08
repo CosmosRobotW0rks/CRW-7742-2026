@@ -31,7 +31,7 @@ public final class Constants {
   public static class IntakeConstants {
     
     public static final int IntakeRollerMotorCANID = 32;
-    public static final double IntakeRoller_TargetVelocity = -2400; // TBD
+    public static final double IntakeRoller_TargetVoltage = 7;
     public static final double IntakeRollerPF_P = 0.00001;
     public static final double IntakeRollerPF_F = 0.00225;
     
