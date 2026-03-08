@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public IntakeSubsystem() {
 
-        rollerMotor = new SparkMax(IntakeConstants.IntakeRollerMotorCANID, MotorType.kBrushless);
+        rollerMotor = new SparkMax(IntakeConstants.IntakeRollerMotorCANID, MotorType.kBrushed);
         SparkMaxConfig rollerMotorConfig = new SparkMaxConfig();
         rollerMotor.configure(rollerMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -89,9 +89,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
         }
 
-        double rollerTargetRPM = state == IntakeState.OPEN ? IntakeConstants.IntakeRoller_TargetVelocity : 0;
+        double rollerTargetVoltage = state == IntakeState.OPEN ? IntakeConstants.IntakeRoller_TargetVoltage : 0;
         
-        rollerMotor.getClosedLoopController().setSetpoint(rollerTargetRPM, ControlType.kVelocity);
+        rollerMotor.getClosedLoopController().setSetpoint(rollerTargetVoltage, ControlType.kVoltage);
 
         SmartDashboard.putBoolean("Intake/IsOpen", isOpen());
         SmartDashboard.putBoolean("Intake/IsClosed", isClosed());
