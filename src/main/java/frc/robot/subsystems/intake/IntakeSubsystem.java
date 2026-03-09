@@ -6,12 +6,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -71,6 +73,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.waitUntil(() -> isClosed()));
     }
 
+    private double reversedUntil = 0; 
+    private int moreThanOnePeriodicCheck = 0;
+    private Supplier<Boolean> isRollerReversed = () -> Timer.getFPGATimestamp() < reversedUntil;
+
     @Override
     public void periodic() {
         switch (state) {
@@ -88,8 +94,23 @@ public class IntakeSubsystem extends SubsystemBase {
             default:
                 break;
         }
+        
+        if(rollerMotor.getOutputCurrent() > 40)
+        {
+            if(moreThanOnePeriodicCheck == 2)
+            {
+                reversedUntil = Timer.getFPGATimestamp() + 0.08;
+                moreThanOnePeriodicCheck = 0;
+            }
+            else moreThanOnePeriodicCheck++;
+        }
+        else moreThanOnePeriodicCheck = 0;
 
-        double rollerTargetVoltage = state == IntakeState.OPEN ? IntakeConstants.IntakeRoller_TargetVoltage : 0;
+        double rollerTargetVoltage = 0;
+        
+        if(state == IntakeState.OPEN) rollerTargetVoltage = IntakeConstants.IntakeRoller_TargetVoltage * (isRollerReversed.get() ? -1 : 1);
+        else rollerTargetVoltage = 0;
+
         
         rollerMotor.getClosedLoopController().setSetpoint(rollerTargetVoltage, ControlType.kVoltage);
 
@@ -98,6 +119,9 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putString("Intake/TargetState", state.toString());
         SmartDashboard.putNumber("Intake/Angle", angleMotor.getEncoder().getPosition());
         SmartDashboard.putNumber("Intake/RollerVelocity", rollerMotor.getEncoder().getVelocity());
+
+        SmartDashboard.putNumber("Intake/RollerCurrent", rollerMotor.getOutputCurrent());
+
     }
 
     private boolean isOpen() {

@@ -62,8 +62,8 @@ public final class Constants {
     public static final Translation2d ShooterOffset = new Translation2d(-0.325, 0.0);
 
 
-    public static final double UpperShooterRPM = 2000; // TBD
-    public static final double LowerShooterRPM = 2000; // TBD
+    public static final double UpperShooterRPM = 3200; // TBD
+    public static final double LowerShooterRPM = 2100; // TBD
     public static final double ShootingDistanceM = 2.5; // TBD
 
   }

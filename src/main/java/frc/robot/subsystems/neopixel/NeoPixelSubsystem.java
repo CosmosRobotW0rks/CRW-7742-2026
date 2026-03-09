@@ -48,7 +48,7 @@ public class NeoPixelSubsystem extends SubsystemBase {
 
     public void setConditionState(NeoPixelCondition cond, boolean state)
     {
-        condMap.put(cond, true);
+        condMap.put(cond, state);
     }
 
     private boolean getCondState(NeoPixelCondition cond)
@@ -69,17 +69,12 @@ public class NeoPixelSubsystem extends SubsystemBase {
         else LEDPattern.solid(Color.kRed).applyTo(mLedBuffer);
         
         if(getCondState(NeoPixelCondition.PREPARING_SHOOT)) 
-            LEDPattern.gradient(GradientType.kContinuous, Color.kRed, Color.kOrangeRed)
-            .scrollAtAbsoluteSpeed(LinearVelocity.ofBaseUnits(10, MetersPerSecond), Distance.ofBaseUnits(1, Meter))
-            .applyTo(mLedBuffer);
-
-        if(getCondState(NeoPixelCondition.PREPARING_SHOOT) && getCondState(NeoPixelCondition.IN_SHOOTING_DISTANCE)) 
-            LEDPattern.gradient(GradientType.kContinuous, Color.kGreen, Color.kDarkSeaGreen)
+            LEDPattern.gradient(GradientType.kContinuous, Color.kBlue, Color.kLightBlue)
             .scrollAtAbsoluteSpeed(LinearVelocity.ofBaseUnits(10, MetersPerSecond), Distance.ofBaseUnits(1, Meter))
             .applyTo(mLedBuffer);
 
         if(getCondState(NeoPixelCondition.SHOOTING))
-            LEDPattern.gradient(GradientType.kContinuous, Color.kPurple, Color.kMediumPurple)
+            LEDPattern.gradient(GradientType.kContinuous, Color.kGreen, Color.kDarkGreen)
             .scrollAtAbsoluteSpeed(LinearVelocity.ofBaseUnits(10, MetersPerSecond), Distance.ofBaseUnits(1, Meter))
             .applyTo(mLedBuffer);
 

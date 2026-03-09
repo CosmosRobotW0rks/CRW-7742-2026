@@ -52,7 +52,7 @@ public class RobotContainer {
 
     swerveSubsystem = new SwerveSubsystem();
     intakeSubsystem = new IntakeSubsystem();
-    shooterSubsystem = new ShooterSubsystem(swerveSubsystem);
+    shooterSubsystem = new ShooterSubsystem(swerveSubsystem, neopixelSubsystem);
     //shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
     //climbSubsystem = new ClimbSubsystem();
@@ -75,12 +75,10 @@ public class RobotContainer {
     
     // driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
 
-    driver.getR1().onTrue(intakeSubsystem.Toggle());
+    driver.getL1().onTrue(intakeSubsystem.Toggle());
 
-    driver.getL1().toggleOnTrue(shooterSubsystem.prepareShooterCommand());
-
-    driver.getBtnDown().and(shooterSubsystem.isReadyToShoot()).whileTrue(shooterSubsystem.FeedCommand());
-
+    driver.getBtnDown().whileTrue(shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true)));
+    
     //new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> driver.getL2())));
     new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(new ApproachPoseCommand(swerveSubsystem, ApproachPoseConfiguration.fromPose(Pose2d.kZero).withMaxSpeed(() -> driver.getL2() * AutoConstants.ApproachPose_Default_maxSpeedMPS)));
 
