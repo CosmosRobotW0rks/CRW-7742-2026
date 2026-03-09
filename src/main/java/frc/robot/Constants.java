@@ -45,10 +45,9 @@ public final class Constants {
 
   public static class ShooterConstants {
     public static final int FeederMotorCANID = 33;
-    public static final double Feeder_TargetRPM = 0; // TBD
-    public static final double Feeder_TargetVoltage = 3; // TEMPORARY
-    public static final double FeederPF_P = 0; // TBD
-    public static final double FeederPF_F = 0; // TBD
+    public static final double Feeder_TargetRPM = 1800;
+    public static final double FeederPF_P = 0.00001;
+    public static final double FeederPF_F = 0.0024;
 
     public static final int UpperShooterMotorCANID = 35;
     public static final double UpperShooterPF_P = 0.000012;

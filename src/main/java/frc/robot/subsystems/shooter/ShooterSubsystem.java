@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 
 import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,6 +52,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private boolean calibrating = false;
 
   private final SwerveSubsystem swerveSubsystem;
+
+  private boolean feederState = false;
+  private double feederUnlockAfter = 0;
+  private double lastFeederStart = 0;
 
 
   public ShooterSubsystem(SwerveSubsystem swerveSubsystem) {
@@ -264,19 +269,40 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   private void toggleFeeder(boolean state) {
-    
-    // TODO: USE VELOCITY
-    //feederMotor.getClosedLoopController().setSetpoint(state ? Constants.ShooterConstants.Feeder_TargetRPM : 0, ControlType.kVelocity);
-    
-    feederMotor.getClosedLoopController().setSetpoint(state ? Constants.ShooterConstants.Feeder_TargetVoltage : 0, ControlType.kVoltage);
+    if(state) lastFeederStart = Timer.getFPGATimestamp();
+    feederState = state;
+    //feederMotor.getClosedLoopController().setSetpoint(state ? Constants.ShooterConstants.Feeder_TargetVoltage : 0, ControlType.kVoltage);
 
 
   }
 
   // PERIODIC
 
+  boolean onePeriodicCheck = false;
+
   @Override
   public void periodic() {
+
+    double now = Timer.getFPGATimestamp();
+
+    if(feederMotor.getOutputCurrent() > 70)
+    {
+      if(onePeriodicCheck)
+      {
+        feederMotor.getClosedLoopController().setSetpoint(0, ControlType.kVelocity);
+        feederUnlockAfter = now + 0.15;
+        onePeriodicCheck = false;
+      }
+      else onePeriodicCheck = true;
+    }
+    else onePeriodicCheck = false;
+
+    if(feederState && feederUnlockAfter < now)
+      feederMotor.getClosedLoopController().setSetpoint(Constants.ShooterConstants.Feeder_TargetRPM, ControlType.kVelocity);
+    else 
+      feederMotor.getClosedLoopController().setSetpoint(0, ControlType.kVelocity);
+
+
     double robotDistanceToHub = getRobotDistanceToHub();
     double shooterDistanceToHub = getShooterDistanceToHub();
     refreshShooterTargetRPMs();
