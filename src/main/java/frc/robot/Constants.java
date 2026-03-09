@@ -61,6 +61,11 @@ public final class Constants {
 
     public static final Translation2d ShooterOffset = new Translation2d(-0.325, 0.0);
 
+
+    public static final double UpperShooterRPM = 2000; // TBD
+    public static final double LowerShooterRPM = 2000; // TBD
+    public static final double ShootingDistanceM = 2.5; // TBD
+
   }
 
 
@@ -83,10 +88,10 @@ public final class Constants {
     public static final Rotation2d   ApproachPose_Default_maxAngAccel = Rotation2d.fromDegrees(720*1000);
 
     public static final double       ApproachPose_Default_translationErrorThresholdM = 0.025;
-    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(2);
+    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(5);
 
-    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4);
-    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(4);
+    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(2);
+    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(0.3);
 
 
   }

@@ -70,9 +70,11 @@ public class ApproachPoseCommand extends Command {
 
         double mag = Math.hypot(xSpeed, ySpeed);
 
-        if (mag > config.maxSpeedMPS) {
-            xSpeed = (xSpeed / mag) * config.maxSpeedMPS;
-            ySpeed = (ySpeed / mag) * config.maxSpeedMPS;
+        double maxSpeedMPS = config.maxSpeedMPS.get();
+
+        if (mag > maxSpeedMPS) {
+            xSpeed = (xSpeed / mag) * maxSpeedMPS;
+            ySpeed = (ySpeed / mag) * maxSpeedMPS;
         }
 
         swerve.setTargetFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed);
@@ -110,7 +112,7 @@ public class ApproachPoseCommand extends Command {
 
         private boolean finishable = true;
 
-        private double maxSpeedMPS = AutoConstants.ApproachPose_Default_maxSpeedMPS;
+        private Supplier<Double> maxSpeedMPS = () -> AutoConstants.ApproachPose_Default_maxSpeedMPS;
         private Rotation2d maxAngularVelocity = AutoConstants.ApproachPose_Default_maxAngVelocity;
         private Rotation2d maxAngularAccel = AutoConstants.ApproachPose_Default_maxAngAccel;
 
@@ -158,6 +160,11 @@ public class ApproachPoseCommand extends Command {
         // MODIFIERS
 
         public ApproachPoseConfiguration withMaxSpeed(double maxSpeed) {
+            this.maxSpeedMPS = () -> maxSpeed;
+            return this;
+        }
+
+        public ApproachPoseConfiguration withMaxSpeed(Supplier<Double> maxSpeed) {
             this.maxSpeedMPS = maxSpeed;
             return this;
         }

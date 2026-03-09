@@ -1,9 +1,12 @@
 package frc.robot.auto;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.auto.autoCommands.ApproachPoseCommand;
 import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
@@ -23,6 +26,26 @@ public class AutoHelper {
         ApproachPoseCommand cmd2 = new ApproachPoseCommand(swerve, config2);
 
         return cmd1.andThen(cmd2);
+    }
+
+    public static Command GetApproachHubCommand(SwerveSubsystem swerve, Pose2d robotPose, Supplier<Double> speedCoeff) {
+        final Translation2d hubPos = FieldUtils.GetAllianceBasedHubCenter();
+        final double shootingDistance = Constants.ShooterConstants.ShootingDistanceM;
+
+        if(!FieldUtils.IsInSelfAllianceHalf(robotPose.getTranslation())) return Commands.none();
+
+        Translation2d hubToRobot = robotPose.getTranslation().minus(hubPos);
+        Translation2d direction = hubToRobot.div(hubToRobot.getNorm());
+
+        Translation2d targetTranslation = hubPos.plus(direction.times(shootingDistance));
+        Rotation2d targetRotation = GetRobotAngleToHub(targetTranslation);
+
+        Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
+
+        ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
+            .withMaxSpeed(speedCoeff);
+        
+        return new ApproachPoseCommand(swerve, config);
     }
 
     public static double GetShooterDistanceToHub(Pose2d robotPose) {

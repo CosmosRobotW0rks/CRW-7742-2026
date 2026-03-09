@@ -10,4 +10,19 @@ public class FieldUtils {
         
         return AllianceUtils.FlipIfRed(blueHubCenter);
     }
+
+    public static boolean IsInSelfAllianceHalf(Translation2d position)
+    {
+        double blueEndX = 4;
+        double redStartX = 12;
+        
+        if(AllianceUtils.isRedAlliance())
+        {
+            return position.getX() > redStartX;
+        }
+        else
+        {
+            return position.getX() < blueEndX;
+        }
+    }
 }
