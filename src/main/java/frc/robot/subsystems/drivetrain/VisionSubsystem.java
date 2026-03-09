@@ -21,14 +21,14 @@ import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    PhotonCamera cameraFw = new PhotonCamera("maincam");
+    PhotonCamera cameraFw = new PhotonCamera("fwcam");
     PhotonCamera cameraAngled = new PhotonCamera("angledcam");
 
-    public static final Transform3d kRobotToFwCam = new Transform3d(new Translation3d(0, 0.0, 0),
+    public static final Transform3d kRobotToFwCam = new Transform3d(new Translation3d(-0.0885, 0.269, 0.4965),
             new Rotation3d(0, 0, 0));
 
-    public static final Transform3d kRobotToAngledCam = new Transform3d(new Translation3d(0, 0.0, 0),
-            new Rotation3d(0, 0, 0));
+    public static final Transform3d kRobotToAngledCam = new Transform3d(new Translation3d(0.04, -0.268555, 0.495),
+            new Rotation3d(0, Math.toRadians(-35), 0));
 
     private PhotonPoseEstimator fwEstimator = new PhotonPoseEstimator(kTagLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToFwCam);
