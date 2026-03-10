@@ -6,6 +6,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,16 +23,22 @@ import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 public class ApproachPoseCommand extends Command {
 
     private final SwerveSubsystem swerve;
-
-    private final PIDController pid_x;
-    private final PIDController pid_y;
-    private final ProfiledPIDController pid_z;
-
     private final ApproachPoseConfiguration config;
+
+    private PIDController pid_x;
+    private PIDController pid_y;
+    private ProfiledPIDController pid_z;
+
 
     public ApproachPoseCommand(SwerveSubsystem swerve, ApproachPoseConfiguration config) {
         this.swerve = swerve;
         this.config = config;
+
+        addRequirements(swerve);
+    }
+
+    @Override
+    public void initialize() {
 
         PIDConstants translationPID = AutoConstants.ApproachPose_Translation_PID;
         PIDConstants rotationPID = AutoConstants.ApproachPose_Rotation_PID;
@@ -45,11 +52,7 @@ public class ApproachPoseCommand extends Command {
 
         pid_z.enableContinuousInput(-Math.PI, Math.PI);
 
-        addRequirements(swerve);
-    }
 
-    @Override
-    public void initialize() {
         Pose2d current = swerve.getRobotPose();
 
         pid_x.reset();
@@ -66,16 +69,33 @@ public class ApproachPoseCommand extends Command {
 
         double ySpeed = config.translate ? pid_y.calculate(currentPose.getY(), targetPose.getY()) : 0;
 
-        double zSpeed = config.rotate ? -pid_z.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians()) : 0;
-
         double mag = Math.hypot(xSpeed, ySpeed);
-
         double maxSpeedMPS = config.maxSpeedMPS.get();
-
         if (mag > maxSpeedMPS) {
             xSpeed = (xSpeed / mag) * maxSpeedMPS;
             ySpeed = (ySpeed / mag) * maxSpeedMPS;
         }
+
+
+        double currentAngle = currentPose.getRotation().getRadians();
+        double targetAngle  = targetPose.getRotation().getRadians();
+        double zSpeed = config.rotate ? -pid_z.calculate(currentAngle, targetAngle) : 0;
+        if(zSpeed < -config.maxAngularVelocity.getRadians()) zSpeed = -config.maxAngularVelocity.getRadians();
+        else if(zSpeed > config.maxAngularVelocity.getRadians()) zSpeed = config.maxAngularVelocity.getRadians();
+
+
+        if (isTranslationCompleted()) {
+            xSpeed = 0;
+            ySpeed = 0;
+        }
+
+        if (isRotationCompleted()) {
+            zSpeed = 0;
+        }
+
+
+        
+
 
         swerve.setTargetFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed);
 
@@ -98,9 +118,30 @@ public class ApproachPoseCommand extends Command {
         SmartDashboard.putNumberArray("Auto/ApproachPoseCmd/PoseError", new double[]{error.getX(), error.getY(), error.getRotation().getRadians()});
 
 
+        return isTranslationCompleted() && isRotationCompleted();
+    }
+
+    public boolean isTranslationCompleted()
+    {
+        Pose2d targetPose = config.poseSupplier.get();
+        Pose2d error = swerve.getRobotPose().relativeTo(targetPose);
+
+        SmartDashboard.putNumber("Auto/ApproachPoseErr/X", error.getX());
+        SmartDashboard.putNumber("Auto/ApproachPoseErr/Y", error.getY());
+
         return Math.abs(error.getX()) < config.xErrorThresholdM &&
-                Math.abs(error.getY()) < config.yErrorThresholdM &&
-                Math.abs(error.getRotation().getRadians()) < config.rotErrorThreshold.getRadians();
+                Math.abs(error.getY()) < config.yErrorThresholdM;
+    }
+
+    public boolean isRotationCompleted() {
+        double err1 = Math.abs(pid_z.getPositionError());
+        double err2 = Math.abs(Math.PI - err1);
+
+        double err = Math.min(err1, err2);
+
+        SmartDashboard.putNumber("Auto/ApproachPoseErr/Angle", err);
+
+        return err < config.rotErrorThreshold.getRadians();
     }
 
     public static class ApproachPoseConfiguration {
