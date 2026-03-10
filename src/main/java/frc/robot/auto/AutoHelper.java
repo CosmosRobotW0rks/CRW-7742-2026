@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
@@ -28,6 +30,10 @@ public class AutoHelper {
         return cmd1.andThen(cmd2);
     }
 
+            
+    private final static StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("EstimatedHubShootPose", Pose2d.struct).publish();
+
     public static Command GetApproachHubCommand(SwerveSubsystem swerve, Pose2d robotPose, Supplier<Double> speedCoeff) {
         final Translation2d hubPos = FieldUtils.GetAllianceBasedHubCenter();
         final double shootingDistance = Constants.ShooterConstants.ShootingDistanceM;
@@ -42,9 +48,13 @@ public class AutoHelper {
 
         Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
 
-        ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
-            .withMaxSpeed(speedCoeff);
+
+        posePublisher.set(targetPose);
         
+        ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
+            .withMaxSpeed(() -> speedCoeff.get() * Constants.AutoConstants.ApproachPose_Default_maxSpeedMPS);
+
+        //return Commands.none();
         return new ApproachPoseCommand(swerve, config);
     }
 
