@@ -13,6 +13,7 @@ import frc.robot.subsystems.drivetrain.swerve.commands.SwerveJoystickDriveComman
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.neopixel.NeoPixelSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.utils.AllianceUtils;
 import frc.robot.utils.Logging;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -95,6 +96,8 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     Pose2d wp1 = DriveConstants.defaultStartPose.transformBy(new Transform2d(-2,0, Rotation2d.kZero));
+    wp1 = AllianceUtils.FlipIfRed(wp1);
+
     ApproachPoseConfiguration approachConfig = ApproachPoseConfiguration.fromPose(wp1).withMaxSpeed(1);
 
     Command cmd1_taxi = new ApproachPoseCommand(swerveSubsystem, approachConfig);

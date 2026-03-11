@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.utils.AllianceUtils;
 import frc.robot.utils.EntryUtils;
 
 public class ApproachPoseCommand extends Command {
@@ -96,7 +97,8 @@ public class ApproachPoseCommand extends Command {
             zSpeed = 0;
         }
 
-        swerve.setTargetFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed);
+        if(AllianceUtils.isRedAlliance()) swerve.setTargetFieldRelativeSpeeds(-xSpeed, -ySpeed, zSpeed);
+        else swerve.setTargetFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed);
 
         SmartDashboard.putNumberArray("Auto/ApproachPose/TargetSpeeds", new double[] { xSpeed, ySpeed, zSpeed });
     }
