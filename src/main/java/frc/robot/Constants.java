@@ -39,7 +39,7 @@ public final class Constants {
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.23;
     
-    public static final double Intake_TargetAngle = -10.3; // TBD
+    public static final double Intake_TargetAngle = -10.7; // TBD
     public static final double Intake_AngleTolerance = 0.5; // TBD
   }
 
@@ -94,7 +94,7 @@ public final class Constants {
   }
 
   public static class DriveConstants {
-    public static final Pose2d defaultStartPose = new Pose2d(4.248, 0.551, Rotation2d.kCCW_90deg);
+    public static final Pose2d defaultStartPose = new Pose2d(4.248, 0.551, Rotation2d.kZero);
 
     // TODO -- Shuffleboard selection ?
 

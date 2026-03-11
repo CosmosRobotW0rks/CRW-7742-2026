@@ -95,7 +95,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     Pose2d wp1 = DriveConstants.defaultStartPose.transformBy(new Transform2d(-2,0, Rotation2d.kZero));
-    ApproachPoseConfiguration approachConfig = ApproachPoseConfiguration.fromPose(wp1);
+    ApproachPoseConfiguration approachConfig = ApproachPoseConfiguration.fromPose(wp1).withMaxSpeed(1);
 
     Command cmd1_taxi = new ApproachPoseCommand(swerveSubsystem, approachConfig);
 

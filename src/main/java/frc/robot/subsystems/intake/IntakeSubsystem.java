@@ -121,6 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/RollerVelocity", rollerMotor.getEncoder().getVelocity());
 
         SmartDashboard.putNumber("Intake/RollerCurrent", rollerMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Intake/AngleCurrent", angleMotor.getOutputCurrent());
 
     }
 
