@@ -18,11 +18,14 @@ import frc.robot.utils.Logging;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.auto.AutoHelper;
 import frc.robot.auto.autoCommands.*;
 import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
@@ -81,7 +84,6 @@ public class RobotContainer {
     //driver.getBtnUp().onTrue(climbSubsystem.Toggle());
 
     driver.getBtnDown().whileTrue(shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true)));
-    
     new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> driver.getL2())));
     //new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(new ApproachPoseCommand(swerveSubsystem, ApproachPoseConfiguration.fromPose(Pose2d.kZero).withMaxSpeed(() -> driver.getL2() * AutoConstants.ApproachPose_Default_maxSpeedMPS)));
 
@@ -92,7 +94,16 @@ public class RobotContainer {
   double time = 0;
 
   public Command getAutonomousCommand() {
-    return Commands.none();
+    Pose2d wp1 = DriveConstants.defaultStartPose.transformBy(new Transform2d(-2,0, Rotation2d.kZero));
+    ApproachPoseConfiguration approachConfig = ApproachPoseConfiguration.fromPose(wp1);
+
+    Command cmd1_taxi = new ApproachPoseCommand(swerveSubsystem, approachConfig);
+
+    Command cmd2_approach = AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> 0.35);
+
+    Command cmd3_prepAndShoot = shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true));
+
+    return cmd1_taxi.andThen(cmd2_approach, cmd3_prepAndShoot);
   }
 
   public void updateNetworkTables() {
