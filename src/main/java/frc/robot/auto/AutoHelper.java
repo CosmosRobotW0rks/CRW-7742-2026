@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,8 +15,10 @@ import frc.robot.auto.autoCommands.ApproachPoseCommand;
 import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.utils.FieldUtils;
+import frc.robot.utils.EntryUtils;
 
 public class AutoHelper {
+
 
     public static Command GetClimbCommand(SwerveSubsystem swerve) {
         final Pose2d wp1 = new Pose2d(1.68, 3.744, Rotation2d.kZero);
@@ -32,11 +35,13 @@ public class AutoHelper {
 
             
     private final static StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
-            .getStructTopic("EstimatedHubShootPose", Pose2d.struct).publish();
-
+            .getStructTopic("ApproachHub/EstimatedHubShootPose", Pose2d.struct).publish();
+    
+    private static DoubleEntry shootDistanceEntry = EntryUtils.createDoubleEntry("Auto/ApproachHub/ShootDistance", Constants.ShooterConstants.ShootingDistanceM);
+    
     public static Command GetApproachHubCommand(SwerveSubsystem swerve, Pose2d robotPose, Supplier<Double> speedCoeff) {
         final Translation2d hubPos = FieldUtils.GetAllianceBasedHubCenter();
-        final double shootingDistance = Constants.ShooterConstants.ShootingDistanceM;
+        final double shootingDistance = shootDistanceEntry.get();
 
         if(!FieldUtils.IsInSelfAllianceHalf(robotPose.getTranslation())) return Commands.none();
 
@@ -47,7 +52,6 @@ public class AutoHelper {
         Rotation2d targetRotation = GetRobotAngleToHub(targetTranslation);
 
         Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
-
 
         posePublisher.set(targetPose);
         

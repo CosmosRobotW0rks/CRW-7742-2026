@@ -98,7 +98,7 @@ public class ApproachPoseCommand extends Command {
 
         swerve.setTargetFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed);
 
-        SmartDashboard.putNumberArray("Auto/ApproachPoseCmd/TargetSpeeds", new double[] { xSpeed, ySpeed, zSpeed });
+        SmartDashboard.putNumberArray("Auto/ApproachPose/TargetSpeeds", new double[] { xSpeed, ySpeed, zSpeed });
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ApproachPoseCommand extends Command {
         Pose2d targetPose = config.poseSupplier.get();
         Pose2d error = swerve.getRobotPose().relativeTo(targetPose);
 
-        SmartDashboard.putNumberArray("Auto/ApproachPoseCmd/PoseError",
+        SmartDashboard.putNumberArray("Auto/ApproachPose/PoseError",
                 new double[] { error.getX(), error.getY(), error.getRotation().getRadians() });
 
         return isTranslationCompleted() && isRotationCompleted();
@@ -125,8 +125,8 @@ public class ApproachPoseCommand extends Command {
         Pose2d targetPose = config.poseSupplier.get();
         Pose2d error = swerve.getRobotPose().relativeTo(targetPose);
 
-        SmartDashboard.putNumber("Auto/ApproachPoseErr/X", error.getX());
-        SmartDashboard.putNumber("Auto/ApproachPoseErr/Y", error.getY());
+        SmartDashboard.putNumber("Auto/ApproachPose/Err/X", error.getX());
+        SmartDashboard.putNumber("Auto/ApproachPose/Err/Y", error.getY());
 
         return Math.abs(error.getX()) < config.xErrorThresholdM &&
                 Math.abs(error.getY()) < config.yErrorThresholdM;
@@ -138,7 +138,7 @@ public class ApproachPoseCommand extends Command {
 
         double err = Math.min(err1, err2);
 
-        SmartDashboard.putNumber("Auto/ApproachPoseErr/Angle", err);
+        SmartDashboard.putNumber("Auto/ApproachPose/Err/Angle", err);
 
         return err < config.rotErrorThreshold.getRadians();
     }

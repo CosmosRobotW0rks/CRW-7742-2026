@@ -37,7 +37,7 @@ public final class Constants {
     
     public static final int IntakeAngleMotorCANID = 31;
     public static final double IntakeAngleP_P = 0.2;
-    public static final double IntakeAngleP_OutMax = 0.2;
+    public static final double IntakeAngleP_OutMax = 0.33;
     
     public static final double Intake_TargetAngle = -10.3; // TBD
     public static final double Intake_AngleTolerance = 0.5; // TBD
@@ -63,8 +63,8 @@ public final class Constants {
 
 
     public static final double UpperShooterRPM = 3200; // TBD
-    public static final double LowerShooterRPM = 2100; // TBD
-    public static final double ShootingDistanceM = 2.5; // TBD
+    public static final double LowerShooterRPM = 2070; // TBD
+    public static final double ShootingDistanceM = 3.2; // TBD
 
   }
 
@@ -78,20 +78,17 @@ public final class Constants {
   }
 
   public static class AutoConstants {   
-    public static final double PathFollow_maxSpeedMPS = 2; // m/s
-    public static final double PathFollow_maxCurrent = 60; // Amps
     public static final PIDConstants PathFollow_Translation_PID = new PIDConstants(5);
     public static final PIDConstants PathFollow_Rotation_PID = new PIDConstants(5);
 
-    public static final double       ApproachPose_Default_maxSpeedMPS = 4;
-    public static final Rotation2d   ApproachPose_Default_maxAngVelocity = Rotation2d.fromDegrees(360*2);
-    public static final Rotation2d   ApproachPose_Default_maxAngAccel = Rotation2d.fromDegrees(720*1000);
+    public static final double       ApproachPose_Default_maxSpeedMPS = 2.8;
+    public static final Rotation2d   ApproachPose_Default_maxAngVelocity = Rotation2d.fromRotations(2);
 
     public static final double       ApproachPose_Default_translationErrorThresholdM = 0.025;
-    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(5);
+    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(3);
 
-    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(2);
-    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(0.3);
+    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4);
+    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(5);
 
 
   }
@@ -102,7 +99,7 @@ public final class Constants {
     // TODO -- Shuffleboard selection ?
 
     public static final double MaxDriveSpeed = 2;
-    public static final double MaxSpeedWithBoost = 5;
+    public static final double MaxSpeedWithBoost = 6;
     
     // m/s
     public static final double SwerveDesaturationThreshold = 6; // m/s

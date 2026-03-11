@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.controls.CommandJoystick;
 import frc.robot.controls.JoystickOptions;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drivetrain.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.subsystems.drivetrain.swerve.commands.SwerveJoystickDriveCommand;
@@ -36,7 +37,7 @@ public class RobotContainer {
   private final VisionSubsystem visionSubsystem;
 
   private final IntakeSubsystem intakeSubsystem;
-  //private final ClimbSubsystem climbSubsystem;
+  private final ClimbSubsystem climbSubsystem;
 
   private final ShooterSubsystem shooterSubsystem;
   //private final ShooterCalibratorSubsystem shooterCalibratorSubsystem;
@@ -55,7 +56,7 @@ public class RobotContainer {
     shooterSubsystem = new ShooterSubsystem(swerveSubsystem, neopixelSubsystem);
     //shooterCalibratorSubsystem = new ShooterCalibratorSubsystem(shooterSubsystem);
     visionSubsystem = new VisionSubsystem(swerveSubsystem);
-    //climbSubsystem = new ClimbSubsystem();
+    climbSubsystem = new ClimbSubsystem();
 
     configureBindings();
 
@@ -73,14 +74,16 @@ public class RobotContainer {
         () -> driver.getR2()));
 
     
-    // driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
+    driver.getBtnLeft().onTrue(climbSubsystem.Toggle());
 
     driver.getL1().onTrue(intakeSubsystem.Toggle());
+    driver.getR1().onTrue(intakeSubsystem.Toggle());
+    //driver.getBtnUp().onTrue(climbSubsystem.Toggle());
 
     driver.getBtnDown().whileTrue(shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true)));
     
-    //new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> driver.getL2())));
-    new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(new ApproachPoseCommand(swerveSubsystem, ApproachPoseConfiguration.fromPose(Pose2d.kZero).withMaxSpeed(() -> driver.getL2() * AutoConstants.ApproachPose_Default_maxSpeedMPS)));
+    new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> driver.getL2())));
+    //new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(new ApproachPoseCommand(swerveSubsystem, ApproachPoseConfiguration.fromPose(Pose2d.kZero).withMaxSpeed(() -> driver.getL2() * AutoConstants.ApproachPose_Default_maxSpeedMPS)));
 
     //driver.getBtnUp().toggleOnTrue(climbSubsystem.Toggle());
 
@@ -89,10 +92,7 @@ public class RobotContainer {
   double time = 0;
 
   public Command getAutonomousCommand() {
-    return Commands.runOnce(() -> time = Timer.getFPGATimestamp()).andThen(new PathPlannerAuto("TESTAUTO"))
-        .andThen(() -> {
-          System.out.println("AUTO TIME: " + (Timer.getFPGATimestamp() - time));
-        }).finallyDo(() -> swerveSubsystem.Stop());
+    return Commands.none();
   }
 
   public void updateNetworkTables() {

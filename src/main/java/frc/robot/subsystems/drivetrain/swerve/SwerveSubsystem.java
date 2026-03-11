@@ -97,30 +97,6 @@ public class SwerveSubsystem extends SubsystemBase {
         estimator = new SwerveDrivePoseEstimator(kinematics, getRobotHeading(), getModulePositions(),
                 new Pose2d(0, 0, Rotation2d.kZero));
 
-        // PathPlanner Init
-        ModuleConfig ppModuleConfig = new ModuleConfig(
-                SwerveConstants.WheelRadiusM,
-                AutoConstants.PathFollow_maxSpeedMPS,
-                PhysicalProperties.wheelCOF,
-                DCMotor.getKrakenX60Foc(1).withReduction(SwerveConstants.GearRatioMap_Drive.get(driveGearRatioOption)),
-                AutoConstants.PathFollow_maxCurrent,
-                8);
-
-        RobotConfig ppConfig = new RobotConfig(PhysicalProperties.RobotMassKg, PhysicalProperties.RobotMOI,
-                ppModuleConfig, SwerveConstants.TrackWidthM);
-
-        AutoBuilder.configure(
-                this::getRobotPose,
-                this::resetRobotPose,
-                this::getRobotRelativeSpeeds,
-                (cs, ff) -> setTargetRobotRelativeSpeeds(cs),
-                new PPHolonomicDriveController(
-                        AutoConstants.PathFollow_Translation_PID,
-                        AutoConstants.PathFollow_Rotation_PID),
-                ppConfig,
-                () -> AllianceUtils.isRedAlliance(),
-                this);
-
         // NT Publishers Init
         SmartDashboard.putData("ToggleOdometry", toggleOdometry());
         SmartDashboard.putData("Field", fieldToPublish);

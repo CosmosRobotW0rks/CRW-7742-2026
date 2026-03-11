@@ -39,6 +39,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final SendableChooser<ShooterDistCalcMode> distCalcModeChooser = new SendableChooser<ShooterDistCalcMode>();
 
+  private final static DoubleEntry lowerShooterRPMEntry = EntryUtils.createDoubleEntry("Shooter/Calib/LowerShooterRPM", Constants.ShooterConstants.LowerShooterRPM);
+  private final static DoubleEntry upperShooterRPMEntry = EntryUtils.createDoubleEntry("Shooter/Calib/UpperShooterRPM", Constants.ShooterConstants.UpperShooterRPM);
+  
   private SparkMax upperMotor;
   private SparkMax lowerMotor;
   private SparkMax feederMotor;
@@ -85,9 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     refreshShooterTargetRPMs();
 
-    distCalcModeChooser.setDefaultOption("Vision", ShooterDistCalcMode.VISION_BASED);
-    distCalcModeChooser.addOption("Manual", ShooterDistCalcMode.MANUAL);
-
+    
     SmartDashboard.putData("Shooter/ShooterDistCalcMode", distCalcModeChooser);
   }
 
@@ -121,12 +122,12 @@ public class ShooterSubsystem extends SubsystemBase {
           
           if(requireShooterAtTargetRPM)
           {
-            if(isShooterAtTargetRPM()) toggleFeeder(true);
-            else toggleFeeder(false);
+            if(isShooterAtTargetRPM()) 
+              toggleFeeder(true);
+            else 
+              toggleFeeder(false);
           }
           else toggleFeeder(true);
-
-          toggleFeeder(true);
         },
         () -> {
           toggleFeeder(false);
@@ -135,8 +136,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // UTILS
   private void refreshShooterTargetRPMs() {
-    upperMotorTargetRPM = Constants.ShooterConstants.UpperShooterRPM;
-    lowerMotorTargetRPM = Constants.ShooterConstants.LowerShooterRPM;
+    upperMotorTargetRPM = upperShooterRPMEntry.get(); //Constants.ShooterConstants.UpperShooterRPM;
+    lowerMotorTargetRPM = lowerShooterRPMEntry.get();//Constants.ShooterConstants.LowerShooterRPM;
   }
 
   public double getRobotDistanceToHub() {
@@ -235,6 +236,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("Shooter/ShooterAtTarget", isShooterAtTargetRPM());
     SmartDashboard.putBoolean("Shooter/FeederAtTarget", isFeederAtTargetRPM());
+    SmartDashboard.putBoolean("Shooter/FeederState", feederState);
 
     SmartDashboard.putNumber("Shooter/RPMs/UpperShooterRPM", getUpperMotorRPM());
     SmartDashboard.putNumber("Shooter/RPMs/LowerShooterRPM", getLowerMotorRPM());
