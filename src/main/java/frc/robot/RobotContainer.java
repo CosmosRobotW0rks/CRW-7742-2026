@@ -103,7 +103,7 @@ public class RobotContainer {
 
     Command cmd3_prepAndShoot = shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true));
 
-    return cmd1_taxi.andThen(cmd2_approach, cmd3_prepAndShoot);
+    return cmd1_taxi.andThen(cmd2_approach).andThen(cmd3_prepAndShoot);
   }
 
   public void updateNetworkTables() {

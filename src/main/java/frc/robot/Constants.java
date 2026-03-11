@@ -39,7 +39,7 @@ public final class Constants {
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.23;
     
-    public static final double Intake_TargetAngle = -10.7; // TBD
+    public static final double Intake_TargetAngle = -11.5; // TBD
     public static final double Intake_AngleTolerance = 0.5; // TBD
   }
 
