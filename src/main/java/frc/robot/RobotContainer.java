@@ -99,7 +99,7 @@ public class RobotContainer {
 
     Command cmd1_taxi = new ApproachPoseCommand(swerveSubsystem, approachConfig);
 
-    Command cmd2_approach = AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> 0.35);
+    Command cmd2_approach = Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> 0.35));
 
     Command cmd3_prepAndShoot = shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true));
 
