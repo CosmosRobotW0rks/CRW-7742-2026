@@ -91,10 +91,15 @@ public final class Constants {
     public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(5);
 
 
+    // Field Constants
+    public static final Pose2d StartPose_Middle = new Pose2d(3.615, 04, Rotation2d.kZero);
+    public static final Pose2d StartPose_RightBump = new Pose2d(3.615, 2.5, Rotation2d.kZero);
+    public static final Pose2d StartPose_RightTrench = new Pose2d(4.375, 0.65, Rotation2d.kZero);
+
+
   }
 
   public static class DriveConstants {
-    public static final Pose2d defaultStartPose = new Pose2d(4.248, 0.551, Rotation2d.kZero);
 
     public static final double MaxDriveSpeed = 2;
     public static final double MaxSpeedWithBoost = 6;

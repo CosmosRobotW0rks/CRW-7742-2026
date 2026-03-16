@@ -70,6 +70,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private SwerveDrivePoseEstimator estimator;
     private boolean odometryEnabled = true;
 
+    private Pose2d startPose = Pose2d.kZero;
+
     // Constructor
     public SwerveSubsystem() {
 
@@ -89,6 +91,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Actions
+
+    public void SetStartPose(Pose2d pose) {
+        startPose = pose;
+    }
+
+
     public Command StopCommand() {
         return runOnce(() -> {
             targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -335,9 +343,7 @@ public class SwerveSubsystem extends SubsystemBase {
         if (!DriverStation.isDisabled())
             return;
 
-        Pose2d pose = Constants.DriveConstants.defaultStartPose;
-
-        pose = AllianceUtils.FlipIfRed(pose);
+        Pose2d pose = AllianceUtils.FlipIfRed(startPose);
 
         estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
 
