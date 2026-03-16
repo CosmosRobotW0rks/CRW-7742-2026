@@ -24,7 +24,7 @@ import frc.robot.utils.FieldUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.auto.AutoHelper;
+import frc.robot.subsystems.auto.AutoHelper;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.subsystems.neopixel.NeoPixelSubsystem;
 import frc.robot.subsystems.neopixel.NeoPixelSubsystem.NeoPixelCondition;
