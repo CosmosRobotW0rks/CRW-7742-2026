@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.wpi.first.units.DistanceUnit;
-import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.AddressableLED;

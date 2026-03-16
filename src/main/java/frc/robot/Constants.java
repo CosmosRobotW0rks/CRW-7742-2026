@@ -39,8 +39,8 @@ public final class Constants {
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.23;
     
-    public static final double Intake_TargetAngle = -11.5; // TBD
-    public static final double Intake_AngleTolerance = 0.5; // TBD
+    public static final double Intake_TargetAngle = -11.5;
+    public static final double Intake_AngleTolerance = 0.5;
   }
 
   public static class ShooterConstants {
@@ -57,14 +57,14 @@ public final class Constants {
     public static final double LowerShooterPF_P = 0.000012;
     public static final double LowerShooterPF_F = 0.00223;
 
-    public static final double RPM_Tolerance = 200; // TBD
+    public static final double RPM_Tolerance = 200;
 
     public static final Translation2d ShooterOffset = new Translation2d(-0.325, 0.0);
 
 
-    public static final double UpperShooterRPM = 3200; // TBD
-    public static final double LowerShooterRPM = 2070; // TBD
-    public static final double ShootingDistanceM = 3.2; // TBD
+    public static final double UpperShooterRPM = 3200;
+    public static final double LowerShooterRPM = 2070;
+    public static final double ShootingDistanceM = 3.2;
 
   }
 
@@ -95,8 +95,6 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final Pose2d defaultStartPose = new Pose2d(4.248, 0.551, Rotation2d.kZero);
-
-    // TODO -- Shuffleboard selection ?
 
     public static final double MaxDriveSpeed = 2;
     public static final double MaxSpeedWithBoost = 6;
@@ -143,7 +141,7 @@ public final class Constants {
     public static final double AnglePIDV_V = 0;
     public static final double AnglePeakVoltage = 9;
 
-    public static final double DrivePIDV_P = 0.0000005; // Old value: 0.05 -- TODO: test new P value
+    public static final double DrivePIDV_P = 0.0000005;
     public static final double DrivePIDV_I = 0;
     public static final double DrivePIDV_D = 0;
     public static final double DrivePIDV_V = 0.12;

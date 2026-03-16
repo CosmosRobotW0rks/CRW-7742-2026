@@ -21,7 +21,6 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.utils.EntryUtils;
 import frc.robot.utils.FieldUtils;
-import frc.robot.utils.Logging;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;

@@ -1,14 +1,6 @@
 package frc.robot.subsystems.drivetrain.swerve;
 
 import java.util.Map;
-import java.util.logging.Logger;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -19,10 +11,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
@@ -33,9 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.PhysicalProperties;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.DriveGearRatioOption;
 import frc.robot.subsystems.drivetrain.swerve.common.SwerveModuleConfiguration;
@@ -58,7 +45,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // For testing individual modules
     private final SwerveModuleLocation isolatedModule = null;
 
-    // TODO: Shuffleboard selection
     private final DriveGearRatioOption driveGearRatioOption = DriveGearRatioOption.R2;
 
     // External sensors
@@ -139,7 +125,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getRobotHeading() {
-        // TODO: Make sure returned value is CCW positive
 
         if (Robot.isSimulation())
             return Rotation2d.fromRadians(simulatedGyroAngleRad);
@@ -245,11 +230,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Private methods
-
-    private void resetRobotPose(Pose2d pose) {
-
-        estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
-    }
 
     private void setTargetSpeeds(ChassisSpeeds cs) {
         targetChassisSpeeds = cs;

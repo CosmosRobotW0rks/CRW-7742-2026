@@ -14,19 +14,13 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.neopixel.NeoPixelSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.utils.AllianceUtils;
-import frc.robot.utils.EntryUtils;
 import frc.robot.utils.Logging;
-
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.auto.AutoHelper;
 import frc.robot.auto.autoCommands.*;
@@ -39,6 +33,8 @@ public class RobotContainer {
   private final NeoPixelSubsystem neopixelSubsystem;
 
   private final SwerveSubsystem swerveSubsystem;
+  
+  @SuppressWarnings("unused")
   private final VisionSubsystem visionSubsystem;
 
   private final IntakeSubsystem intakeSubsystem;

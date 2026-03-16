@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.utils.elasticFiles.CoreElastic;
-import frc.robot.utils.elasticFiles.CoreElastic.Notification;
 
 public class Logging {
 
