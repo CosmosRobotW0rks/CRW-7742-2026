@@ -11,6 +11,20 @@ public class FieldUtils {
         return AllianceUtils.FlipIfRed(blueHubCenter);
     }
 
+    public static Translation2d GetBlueHubCenter()
+    {
+        Translation2d blueHubCenter = Constants.FieldConstants.HubCenter;
+        
+        return blueHubCenter;
+    }
+
+    public static Translation2d GetRedHubCenter()
+    {
+        Translation2d blueHubCenter = Constants.FieldConstants.HubCenter;
+        
+        return AllianceUtils.Flip(blueHubCenter);
+    }
+
     public static boolean IsInSelfAllianceHalf(Translation2d position)
     {
         double blueEndX = 4;

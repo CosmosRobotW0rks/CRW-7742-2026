@@ -20,7 +20,7 @@ public final class Constants {
   }
 
   public static class FieldConstants {
-    public static final Translation2d HubCenter = new Translation2d(4.028, 4.01);
+    public static final Translation2d HubCenter = new Translation2d(4.613, 4);
   }
 
   public static class ClimbConstants {
@@ -84,11 +84,11 @@ public final class Constants {
     public static final double       ApproachPose_Default_maxSpeedMPS = 2.8;
     public static final Rotation2d   ApproachPose_Default_maxAngVelocity = Rotation2d.fromRotations(2);
 
-    public static final double       ApproachPose_Default_translationErrorThresholdM = 0.025;
-    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(3);
+    public static final double       ApproachPose_Default_translationErrorThresholdM = 0.02;
+    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(1);
 
-    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4);
-    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(5);
+    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4); // Sim: 8
+    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(5); // Sim: 6
 
 
     // Field Constants

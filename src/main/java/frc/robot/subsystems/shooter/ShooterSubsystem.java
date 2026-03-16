@@ -100,6 +100,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // COMMANDS
 
+  public Command sleepShooterCommand()
+  {
+    return Commands.runOnce(() -> shooterPrepSleepAfter = 0);
+  }
+
   public Command prepareAndShootCommand(boolean noRobotMovement)
   {
     Command prepAndShoot = prepareShooterCommand().alongWith(FeedCommand(true));

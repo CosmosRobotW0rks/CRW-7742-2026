@@ -53,7 +53,7 @@ public class AutoHelper {
             Translation2d direction = hubToRobot.div(hubToRobot.getNorm());
 
             Translation2d targetTranslation = hubPos.plus(direction.times(shootingDistance));
-            Rotation2d targetRotation = GetRobotAngleToHub(targetTranslation);
+            Rotation2d targetRotation = GetRobotAngleToAllianceHub(targetTranslation);
 
             Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
 
@@ -77,9 +77,18 @@ public class AutoHelper {
         return shooterFieldPosition.getDistance(hubTranslation);
     }
 
-    public static Rotation2d GetRobotAngleToHub(Translation2d robotPos) {
+    public static Rotation2d GetRobotAngleToAllianceHub(Translation2d robotPos) {
 
         Translation2d hubCenter = FieldUtils.GetAllianceBasedHubCenter();
+
+        Translation2d diff = hubCenter.minus(robotPos);
+
+        return new Rotation2d(diff.getX(), diff.getY());
+    }
+
+    public static Rotation2d GetRobotAngleToBlueHub(Translation2d robotPos) {
+
+        Translation2d hubCenter = FieldUtils.GetBlueHubCenter();
 
         Translation2d diff = hubCenter.minus(robotPos);
 

@@ -348,10 +348,8 @@ public class SwerveSubsystem extends SubsystemBase {
     void resetWithStartPose() {
         if (!DriverStation.isDisabled())
             return;
-
-        Pose2d pose = AllianceUtils.FlipIfRed(startPose);
-
-        estimator.resetPosition(getRobotHeading(), getModulePositions(), pose);
+        
+        estimator.resetPosition(Rotation2d.kZero, getModulePositions(), startPose);
 
     }
 
