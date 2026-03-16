@@ -14,6 +14,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.neopixel.NeoPixelSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.utils.AllianceUtils;
+import frc.robot.utils.EntryUtils;
 import frc.robot.utils.Logging;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -82,14 +83,15 @@ public class RobotContainer {
 
     driver.getL1().onTrue(intakeSubsystem.Toggle());
     driver.getR1().onTrue(intakeSubsystem.Toggle());
-    //driver.getBtnUp().onTrue(climbSubsystem.Toggle());
 
-    driver.getBtnDown().whileTrue(shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true)));
-    new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> driver.getL2())));
-    //new Trigger(() -> (driver.getL2() > 0.05)).whileTrue(new ApproachPoseCommand(swerveSubsystem, ApproachPoseConfiguration.fromPose(Pose2d.kZero).withMaxSpeed(() -> driver.getL2() * AutoConstants.ApproachPose_Default_maxSpeedMPS)));
 
-    //driver.getBtnUp().toggleOnTrue(climbSubsystem.Toggle());
-
+    driver.getBtnDown().whileTrue(shooterSubsystem.prepareAndShootCommand(false));
+    
+    new Trigger(() -> (driver.getL2() > 0.05))
+    .whileTrue(AutoHelper.GetApproachHubCommand(swerveSubsystem, () -> swerveSubsystem.getRobotPose(), () -> driver.getL2())
+    .andThen(shooterSubsystem.prepareAndShootCommand(true))    
+    );
+   
   }
 
   double time = 0;
@@ -102,11 +104,13 @@ public class RobotContainer {
 
     Command cmd1_taxi = new ApproachPoseCommand(swerveSubsystem, approachConfig);
 
-    Command cmd2_approach = Commands.deferredProxy(() -> AutoHelper.GetApproachHubCommand(swerveSubsystem, swerveSubsystem.getRobotPose(), () -> 0.35));
+    Command cmd2_1_prepShooter = shooterSubsystem.prepareShooterCommand();
 
-    Command cmd3_prepAndShoot = shooterSubsystem.prepareShooterCommand().alongWith(shooterSubsystem.FeedCommand(true));
+    Command cmd2_2_approach = AutoHelper.GetApproachHubCommand(swerveSubsystem, () -> swerveSubsystem.getRobotPose(), () -> 0.35);
 
-    return cmd1_taxi.andThen(cmd2_approach).andThen(cmd3_prepAndShoot);
+    Command cmd3_prepAndShoot = shooterSubsystem.prepareAndShootCommand(true);
+
+    return cmd1_taxi.andThen(cmd2_1_prepShooter.raceWith(cmd2_2_approach)).andThen(cmd3_prepAndShoot);
   }
 
   public void updateNetworkTables() {

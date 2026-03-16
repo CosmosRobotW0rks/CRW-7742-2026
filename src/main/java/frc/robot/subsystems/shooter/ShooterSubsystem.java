@@ -59,6 +59,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private boolean feederState = false;
   private double feederUnlockAfter = 0;
 
+  private double shooterPrepSleepAfter = 0;
+
   public ShooterSubsystem(SwerveSubsystem swerveSubsystem, NeoPixelSubsystem neopixelSubsystem) {
 
     this.swerveSubsystem = swerveSubsystem;
@@ -99,19 +101,27 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // COMMANDS
 
+  public Command prepareAndShootCommand(boolean noRobotMovement)
+  {
+    Command prepAndShoot = prepareShooterCommand().alongWith(FeedCommand(true));
+    if(noRobotMovement)
+    {
+      prepAndShoot.addRequirements(swerveSubsystem);
+    }
+    
+    return prepAndShoot;
+  }
+
   public Command prepareShooterCommand() {
     return Commands.runEnd(
         () -> {
           refreshShooterTargetRPMs();
           setUpperMotorRPM(upperMotorTargetRPM);
           setLowerMotorRPM(lowerMotorTargetRPM);
+          shooterPrepSleepAfter = Timer.getFPGATimestamp() + 5;
           neopixelSubsystem.setConditionState(NeoPixelCondition.PREPARING_SHOOT, true);
         },
         () -> {
-          upperMotor.stopMotor();
-          lowerMotor.stopMotor();
-          upperMotorSimRPM = 0;
-          lowerMotorSimRPM = 0;
           neopixelSubsystem.setConditionState(NeoPixelCondition.PREPARING_SHOOT, false);
         });
   }
@@ -213,6 +223,16 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
 
     double now = Timer.getFPGATimestamp();
+
+    if(now > shooterPrepSleepAfter)
+    {
+      upperMotor.stopMotor();
+      lowerMotor.stopMotor();
+      upperMotorSimRPM = 0;
+      lowerMotorSimRPM = 0;
+    }
+
+
 
     if (feederMotor.getOutputCurrent() > 70) {
       if (onePeriodicCheck) {

@@ -1,5 +1,6 @@
 package frc.robot.auto;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -38,28 +39,31 @@ public class AutoHelper {
             .getStructTopic("ApproachHub/EstimatedHubShootPose", Pose2d.struct).publish();
     
     private static DoubleEntry shootDistanceEntry = EntryUtils.createDoubleEntry("Auto/ApproachHub/ShootDistance", Constants.ShooterConstants.ShootingDistanceM);
-    
-    public static Command GetApproachHubCommand(SwerveSubsystem swerve, Pose2d robotPose, Supplier<Double> speedCoeff) {
-        final Translation2d hubPos = FieldUtils.GetAllianceBasedHubCenter();
-        final double shootingDistance = shootDistanceEntry.get();
+   
+    public static Command GetApproachHubCommand(SwerveSubsystem swerve, Supplier<Pose2d> robotPoseSup, Supplier<Double> speedCoeff) {
+        return Commands.defer(() -> {
+            final Translation2d hubPos = FieldUtils.GetAllianceBasedHubCenter();
+            final double shootingDistance = shootDistanceEntry.get();
+            final Pose2d robotPose = robotPoseSup.get();
 
-        if(!FieldUtils.IsInSelfAllianceHalf(robotPose.getTranslation())) return Commands.none();
+            if (!FieldUtils.IsInSelfAllianceHalf(robotPose.getTranslation()))
+                return Commands.none();
 
-        Translation2d hubToRobot = robotPose.getTranslation().minus(hubPos);
-        Translation2d direction = hubToRobot.div(hubToRobot.getNorm());
+            Translation2d hubToRobot = robotPose.getTranslation().minus(hubPos);
+            Translation2d direction = hubToRobot.div(hubToRobot.getNorm());
 
-        Translation2d targetTranslation = hubPos.plus(direction.times(shootingDistance));
-        Rotation2d targetRotation = GetRobotAngleToHub(targetTranslation);
+            Translation2d targetTranslation = hubPos.plus(direction.times(shootingDistance));
+            Rotation2d targetRotation = GetRobotAngleToHub(targetTranslation);
 
-        Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
+            Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
 
-        posePublisher.set(targetPose);
-        
-        ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
-            .withMaxSpeed(() -> speedCoeff.get() * Constants.AutoConstants.ApproachPose_Default_maxSpeedMPS);
+            posePublisher.set(targetPose);
 
-        //return Commands.none();
-        return new ApproachPoseCommand(swerve, config);
+            ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
+                    .withMaxSpeed(() -> speedCoeff.get() * Constants.AutoConstants.ApproachPose_Default_maxSpeedMPS);
+
+            return new ApproachPoseCommand(swerve, config);
+        }, Set.of(swerve));
     }
 
     public static double GetShooterDistanceToHub(Pose2d robotPose) {
