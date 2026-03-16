@@ -105,7 +105,7 @@ public class ShooterSubsystem extends SubsystemBase {
     Command prepAndShoot = prepareShooterCommand().alongWith(FeedCommand(true));
     if(noRobotMovement)
     {
-      prepAndShoot.addRequirements(swerveSubsystem);
+      prepAndShoot = prepAndShoot.alongWith(swerveSubsystem.NoMovementCommand());
     }
     
     return prepAndShoot;

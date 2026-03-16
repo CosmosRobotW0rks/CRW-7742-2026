@@ -97,6 +97,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
 
+    public Command NoMovementCommand() {
+        return run(() -> {
+            targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+        });
+    }
+
     public Command StopCommand() {
         return runOnce(() -> {
             targetChassisSpeeds = new ChassisSpeeds(0, 0, 0);
