@@ -67,12 +67,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         var result = results.get(results.size() - 1);
 
-        if (result.hasTargets()) {
-            double distanceMeters = result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm();
-            if (distanceMeters > 4.0) {
-                return;
-            }
-        }
 
         Optional<EstimatedRobotPose> visionEst = estimator.update(result);
 
