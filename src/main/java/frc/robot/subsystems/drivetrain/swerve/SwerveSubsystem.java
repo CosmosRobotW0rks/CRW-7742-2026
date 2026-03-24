@@ -5,6 +5,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import com.ctre.phoenix6.hardware.CANcoder;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +14,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
@@ -192,8 +195,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Vision
 
-    public void addVisionMeasurement(Pose2d p2d, double timestampSeconds) {
-        estimator.addVisionMeasurement(p2d, timestampSeconds);
+    public synchronized void addVisionMeasurement(Pose2d p2d, double timestampSeconds,
+            Matrix<N3, N1> visionMeasurementStdDevs) {
+        estimator.addVisionMeasurement(p2d, timestampSeconds, visionMeasurementStdDevs);
     }
 
     public SwerveModule getModule(SwerveModuleLocation location) {
