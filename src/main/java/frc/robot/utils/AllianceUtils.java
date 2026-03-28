@@ -40,4 +40,10 @@ public final class AllianceUtils {
     {
         return isRedAlliance() ? Flip(translation) : translation;
     }
+
+    public static Pose2d FlipVertically(Pose2d pose, boolean rotate)
+    {
+        Pose2d newPose = new Pose2d(pose.getX(), FIELD_HEIGHT-pose.getY(), rotate ? pose.getRotation().rotateBy(Rotation2d.k180deg) : pose.getRotation());
+        return newPose;
+    }
 }

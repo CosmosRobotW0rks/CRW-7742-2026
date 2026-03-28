@@ -15,9 +15,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
+import frc.robot.subsystems.neopixel.NeoPixelSubsystem;
+import frc.robot.subsystems.neopixel.NeoPixelSubsystem.NeoPixelCondition;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -40,13 +43,17 @@ public class VisionSubsystem extends SubsystemBase {
 
     
     private SwerveSubsystem swerveDt;
+    private NeoPixelSubsystem neopixel;
+    
    
-    public VisionSubsystem(SwerveSubsystem swerveDt) {
+    public VisionSubsystem(SwerveSubsystem swerveDt, NeoPixelSubsystem neopixel) {
         this.swerveDt = swerveDt;
+        this.neopixel = neopixel;
     }
 
     long sucC = 0;
     long totalC = 0;
+    double lastRead = 0;
 
     @Override
     public void periodic() {
@@ -56,6 +63,11 @@ public class VisionSubsystem extends SubsystemBase {
 
         SmartDashboard.putNumber("VISION/SUCC", sucC);
         SmartDashboard.putNumber("VISION/TOTALC", totalC);
+
+
+        boolean activelyReading = lastRead + 0.2 > Timer.getFPGATimestamp();
+        SmartDashboard.putBoolean("VISION/ACTIVELY READING", activelyReading);
+        neopixel.setConditionState(NeoPixelCondition.ACTIVELY_READING_TAGS, activelyReading);
     }
 
     void handleCamera(PhotonCamera camera, PhotonPoseEstimator estimator)
@@ -80,6 +92,7 @@ public class VisionSubsystem extends SubsystemBase {
             SmartDashboard.putNumberArray("VISION/T3D_" + camera.getName(), new Double[] { p3d.getX(), p3d.getY(), p3d.getZ() });
 
             sucC++;
+            lastRead = Timer.getFPGATimestamp();
         }
 
         totalC++;

@@ -26,8 +26,8 @@ public class ClimbSubsystem extends SubsystemBase {
         compressor = new Compressor(ClimbConstants.PCMCANID, PneumaticsModuleType.CTREPCM);
         solenoid = new Solenoid(ClimbConstants.PCMCANID, PneumaticsModuleType.CTREPCM, ClimbConstants.ValveChannel);
 
-        compressor.disable();
-        //compressor.enableDigital();
+        //compressor.disable();
+        compressor.enableDigital();
 
     }
 
@@ -56,11 +56,11 @@ public class ClimbSubsystem extends SubsystemBase {
     public void periodic() {
         switch (state) {
             case UP:
-            solenoid.set(false);
+            solenoid.set(true);
             break;
 
             case DOWN:
-            solenoid.set(true);
+            solenoid.set(false);
             break;
 
             default:

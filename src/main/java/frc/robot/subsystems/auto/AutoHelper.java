@@ -1,4 +1,4 @@
-package frc.robot.auto;
+package frc.robot.subsystems.auto;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -12,8 +12,8 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
-import frc.robot.auto.autoCommands.ApproachPoseCommand;
-import frc.robot.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
+import frc.robot.subsystems.auto.autoCommands.ApproachPoseCommand;
+import frc.robot.subsystems.auto.autoCommands.ApproachPoseCommand.ApproachPoseConfiguration;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.utils.FieldUtils;
 import frc.robot.utils.EntryUtils;
@@ -53,7 +53,7 @@ public class AutoHelper {
             Translation2d direction = hubToRobot.div(hubToRobot.getNorm());
 
             Translation2d targetTranslation = hubPos.plus(direction.times(shootingDistance));
-            Rotation2d targetRotation = GetRobotAngleToHub(targetTranslation);
+            Rotation2d targetRotation = GetRobotAngleToAllianceHub(targetTranslation);
 
             Pose2d targetPose = new Pose2d(targetTranslation, targetRotation);
 
@@ -64,6 +64,11 @@ public class AutoHelper {
 
             return new ApproachPoseCommand(swerve, config);
         }, Set.of(swerve));
+    }
+
+    public static double GetShootDistance()
+    {
+        return shootDistanceEntry.get();
     }
 
     public static double GetShooterDistanceToHub(Pose2d robotPose) {
@@ -77,9 +82,18 @@ public class AutoHelper {
         return shooterFieldPosition.getDistance(hubTranslation);
     }
 
-    public static Rotation2d GetRobotAngleToHub(Translation2d robotPos) {
+    public static Rotation2d GetRobotAngleToAllianceHub(Translation2d robotPos) {
 
         Translation2d hubCenter = FieldUtils.GetAllianceBasedHubCenter();
+
+        Translation2d diff = hubCenter.minus(robotPos);
+
+        return new Rotation2d(diff.getX(), diff.getY());
+    }
+
+    public static Rotation2d GetRobotAngleToBlueHub(Translation2d robotPos) {
+
+        Translation2d hubCenter = FieldUtils.GetBlueHubCenter();
 
         Translation2d diff = hubCenter.minus(robotPos);
 

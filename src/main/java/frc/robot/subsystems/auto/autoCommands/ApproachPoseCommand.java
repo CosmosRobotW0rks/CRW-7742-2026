@@ -1,6 +1,7 @@
-package frc.robot.auto.autoCommands;
+package frc.robot.subsystems.auto.autoCommands;
 
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -15,6 +16,7 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.drivetrain.swerve.SwerveSubsystem;
 import frc.robot.utils.AllianceUtils;
 import frc.robot.utils.EntryUtils;
+import frc.robot.utils.Logging;
 
 public class ApproachPoseCommand extends Command {
     private final static DoubleEntry entryTransXP = EntryUtils.createDoubleEntry("Auto/ApproachPose/Calib/Trans_XP", AutoConstants.ApproachPose_Translation_PID.kP);
@@ -99,6 +101,7 @@ public class ApproachPoseCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         swerve.Stop();
+        //Logging.infoMsg("Approach Pose","Approach pose ended // interrupted: " + ((Boolean)interrupted).toString());
     }
 
     @Override

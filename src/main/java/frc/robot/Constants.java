@@ -20,7 +20,7 @@ public final class Constants {
   }
 
   public static class FieldConstants {
-    public static final Translation2d HubCenter = new Translation2d(4.028, 4.01);
+    public static final Translation2d HubCenter = new Translation2d(4.613, 4);
   }
 
   public static class ClimbConstants {
@@ -39,14 +39,15 @@ public final class Constants {
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.23;
     
-    public static final double Intake_TargetAngle = -11.5;
+    public static final double Intake_TargetAngle = -12;
     public static final double Intake_AngleTolerance = 0.5;
   }
 
   public static class ShooterConstants {
     public static final int FeederMotorCANID = 33;
-    public static final double Feeder_TargetRPM = 1800;
-    public static final double FeederPF_P = 0.00001;
+    public static final double Feeder_TargetRPM = 1500;
+    public static final double Feeder_TargetVoltage = 5;
+    public static final double FeederPF_P = 0.00003;
     public static final double FeederPF_F = 0.0024;
 
     public static final int UpperShooterMotorCANID = 35;
@@ -64,7 +65,7 @@ public final class Constants {
 
     public static final double UpperShooterRPM = 3200;
     public static final double LowerShooterRPM = 2070;
-    public static final double ShootingDistanceM = 3.2;
+    public static final double ShootingDistanceM = 3.3;
 
   }
 
@@ -84,17 +85,22 @@ public final class Constants {
     public static final double       ApproachPose_Default_maxSpeedMPS = 2.8;
     public static final Rotation2d   ApproachPose_Default_maxAngVelocity = Rotation2d.fromRotations(2);
 
-    public static final double       ApproachPose_Default_translationErrorThresholdM = 0.025;
-    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(3);
+    public static final double       ApproachPose_Default_translationErrorThresholdM = 0.02;
+    public static final Rotation2d   ApproachPose_Default_rotationErrorThreshold = Rotation2d.fromDegrees(1);
 
-    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4);
-    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(5);
+    public static final PIDConstants ApproachPose_Translation_PID = new PIDConstants(4); // Sim: 8
+    public static final PIDConstants ApproachPose_Rotation_PID = new PIDConstants(5); // Sim: 6
+
+
+    // Field Constants
+    public static final Pose2d StartPose_Middle = new Pose2d(3.615, 04, Rotation2d.kZero);
+    public static final Pose2d StartPose_RightBump = new Pose2d(3.615, 2.5, Rotation2d.kZero);
+    public static final Pose2d StartPose_RightTrench = new Pose2d(4.375, 0.65, Rotation2d.kZero);
 
 
   }
 
   public static class DriveConstants {
-    public static final Pose2d defaultStartPose = new Pose2d(4.248, 0.551, Rotation2d.kZero);
 
     public static final double MaxDriveSpeed = 2;
     public static final double MaxSpeedWithBoost = 6;
