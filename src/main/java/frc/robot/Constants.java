@@ -39,14 +39,15 @@ public final class Constants {
     public static final double IntakeAngleP_P = 0.2;
     public static final double IntakeAngleP_OutMax = 0.23;
     
-    public static final double Intake_TargetAngle = -11.5;
+    public static final double Intake_TargetAngle = -12;
     public static final double Intake_AngleTolerance = 0.5;
   }
 
   public static class ShooterConstants {
     public static final int FeederMotorCANID = 33;
-    public static final double Feeder_TargetRPM = 1800;
-    public static final double FeederPF_P = 0.00001;
+    public static final double Feeder_TargetRPM = 1500;
+    public static final double Feeder_TargetVoltage = 5;
+    public static final double FeederPF_P = 0.00003;
     public static final double FeederPF_F = 0.0024;
 
     public static final int UpperShooterMotorCANID = 35;
@@ -64,7 +65,7 @@ public final class Constants {
 
     public static final double UpperShooterRPM = 3200;
     public static final double LowerShooterRPM = 2070;
-    public static final double ShootingDistanceM = 3.2;
+    public static final double ShootingDistanceM = 3.3;
 
   }
 

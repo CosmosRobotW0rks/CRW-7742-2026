@@ -66,6 +66,11 @@ public class AutoHelper {
         }, Set.of(swerve));
     }
 
+    public static double GetShootDistance()
+    {
+        return shootDistanceEntry.get();
+    }
+
     public static double GetShooterDistanceToHub(Pose2d robotPose) {
 
         Translation2d hubTranslation = FieldUtils.GetAllianceBasedHubCenter();

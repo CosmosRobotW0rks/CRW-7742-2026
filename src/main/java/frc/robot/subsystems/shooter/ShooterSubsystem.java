@@ -183,9 +183,20 @@ public class ShooterSubsystem extends SubsystemBase {
         getFeederMotorRPM() - Constants.ShooterConstants.Feeder_TargetRPM) < Constants.ShooterConstants.RPM_Tolerance;
   }
 
+  double shooterAtTargetAfter = 0;
+
   private boolean isShooterAtTargetRPM() {
-    return Math.abs(getUpperMotorRPM() - upperMotorTargetRPM) < Constants.ShooterConstants.RPM_Tolerance
+    boolean rpmsOk = Math.abs(getUpperMotorRPM() - upperMotorTargetRPM) < Constants.ShooterConstants.RPM_Tolerance
         && Math.abs(getLowerMotorRPM() - lowerMotorTargetRPM) < Constants.ShooterConstants.RPM_Tolerance;
+
+    if(shooterAtTargetAfter == 0)
+    {
+      if(rpmsOk) shooterAtTargetAfter = Timer.getFPGATimestamp() + 0.15;      
+    }
+    else if(rpmsOk && shooterAtTargetAfter < Timer.getFPGATimestamp()) return true;
+
+    return false;
+
   }
 
   // GET RPMS
@@ -234,6 +245,8 @@ public class ShooterSubsystem extends SubsystemBase {
       lowerMotor.stopMotor();
       upperMotorSimRPM = 0;
       lowerMotorSimRPM = 0;
+
+      shooterAtTargetAfter = 0;
     }
 
 
@@ -255,7 +268,6 @@ public class ShooterSubsystem extends SubsystemBase {
       feederMotor.getClosedLoopController().setSetpoint(0, ControlType.kVelocity);
 
     double robotDistanceToHub = getRobotDistanceToHub();
-    double shooterDistanceToHub = getShooterDistanceToHub();
     refreshShooterTargetRPMs();
 
     SmartDashboard.putBoolean("Shooter/ShooterAtTarget", isShooterAtTargetRPM());
@@ -271,8 +283,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // NOTE: Only shooter distance to hub is influenced by the manual distance.
     // Robot distance to hub is always calculated with the drivetrain pose.
-    SmartDashboard.putNumber("Shooter/ShooterDistanceToHub", shooterDistanceToHub);
+    //SmartDashboard.putNumber("Shooter/ShooterDistanceToHub", shooterDistanceToHub);
     SmartDashboard.putNumber("Shooter/RobotDistanceToHub", robotDistanceToHub);
+    SmartDashboard.putNumber("Shooter/RobotDistanceErrorToHub", AutoHelper.GetShootDistance() - robotDistanceToHub);
 
     SmartDashboard.putNumber("Shooter/FeederCurrent", feederMotor.getOutputCurrent());
   }

@@ -37,32 +37,35 @@ public class AutoSubsystem extends SubsystemBase {
     BooleanEntry entry_climbEnabled = EntryUtils.createBooleanEntry("AutoConfig/Climb Enabled", true);
 
     SendableChooser<String> chooser_startPos = EntryUtils.createSendableChooser("AutoConfig/Start Pos",
-     "Left Trench", "Left Bump", "Right Bump", "Right Trench");
+            "Left Trench", "Left Bump", "Right Bump", "Right Trench");
 
     SendableChooser<String> chooser_climbSide = EntryUtils.createSendableChooser("AutoConfig/Climb Side",
-     "Left");
+            "Left");
 
-    DoubleEntry entry_taxiX = EntryUtils.createDoubleEntry("AutoConfig/Taxi X", 2.0);
+    DoubleEntry entry_taxiX = EntryUtils.createDoubleEntry("AutoConfig/Taxi X", 2);
     DoubleEntry entry_climbTravelX = EntryUtils.createDoubleEntry("AutoConfig/Climb Travel X", 1.6);
 
-    DoubleEntry entry_climbY = EntryUtils.createDoubleEntry("AutoConfig/Climb Y", 4.629);
-    DoubleEntry entry_climbBackwardX = EntryUtils.createDoubleEntry("AutoConfig/Climb Backward X", 0.55);
-    DoubleEntry entry_climbForwardX = EntryUtils.createDoubleEntry("AutoConfig/Climb Forward X", 0.9);
+    DoubleEntry entry_climbY = EntryUtils.createDoubleEntry("AutoConfig/Climb Y", 4.58);
+    DoubleEntry entry_climbBackwardX = EntryUtils.createDoubleEntry("AutoConfig/Climb Backward X", 0.73);
+    DoubleEntry entry_climbForwardX = EntryUtils.createDoubleEntry("AutoConfig/Climb Forward X", 0.99);
+    DoubleEntry entry_climbForwardY = EntryUtils.createDoubleEntry("AutoConfig/Climb Forward Y", 4.54);
+    DoubleEntry entry_climbForwardTimeout = EntryUtils.createDoubleEntry("AutoConfig/Climb Forward Timeout", 3);
 
     SwerveSubsystem swerve;
     ShooterSubsystem shooter;
     ClimbSubsystem climb;
 
-    public AutoSubsystem(SwerveSubsystem swerveSubsystem, ShooterSubsystem shooterSubsystem, ClimbSubsystem climbSubsystem) {
+    public AutoSubsystem(SwerveSubsystem swerveSubsystem, ShooterSubsystem shooterSubsystem,
+            ClimbSubsystem climbSubsystem) {
         this.swerve = swerveSubsystem;
         this.shooter = shooterSubsystem;
         this.climb = climbSubsystem;
     }
 
-    public Pose2d getBlueStartPos()
-    {
+    public Pose2d getBlueStartPos() {
         String selected = chooser_startPos.getSelected();
-        if (selected == null) selected = "Middle";
+        if (selected == null)
+            selected = "Middle";
 
         Pose2d pose = switch (selected) {
             case "Left Trench" -> AllianceUtils.FlipVertically(AutoConstants.StartPose_RightTrench, false);
@@ -78,31 +81,33 @@ public class AutoSubsystem extends SubsystemBase {
 
     public Command getAutoCommand() {
 
-        if (!entry_autoEnabled.get())
-            return Commands.none();
+        return Commands.deferredProxy(() -> {
+            if (!entry_autoEnabled.get())
+                return Commands.none();
 
-        boolean en_alignAndShoot = entry_alignAndShootEnabled.get();
-        boolean en_climb = entry_climbEnabled.get();
+            boolean en_alignAndShoot = entry_alignAndShootEnabled.get();
+            boolean en_climb = entry_climbEnabled.get();
 
-        Command base = Commands.none();
-        base = addTaxi(base);
+            Command base = Commands.none();
 
-        if (en_alignAndShoot) 
-            base = addApproachAndShoot(base);
+            base = addTaxi(base);
 
-        if (en_climb)
-            base = addClimb(base);
+            if (en_alignAndShoot)
+                base = addApproachAndShoot(base);
 
-        return base;
+            if (en_climb)
+                base = addClimb(base);
+
+            return base;
+        });
+
     }
 
-    private Command alertCmd(String msg) {
-        return Commands.runOnce(() -> Logging.infoMsg("CMD", msg));
+    private Command addAlertCmd(Command base, String msg) {
+        return base.andThen(Commands.runOnce(() -> Logging.infoMsg("CMD", msg)));
     }
-    
 
-    private Command addTaxi(Command cmd)
-    {
+    private Command addTaxi(Command cmd) {
         Pose2d startPose = getBlueStartPos();
 
         Translation2d wp1Translation = new Translation2d(entry_taxiX.get(), startPose.getY());
@@ -111,28 +116,29 @@ public class AutoSubsystem extends SubsystemBase {
         Pose2d wp1 = new Pose2d(wp1Translation, wp1Rotation);
         wp1 = AllianceUtils.FlipIfRed(wp1);
 
-        ApproachPoseConfiguration approachConfig = ApproachPoseConfiguration.fromPose(wp1).withAngularVelocity(maxSpeed_TaxiRot).withMaxSpeed(maxSpeed_TaxiTrans);
+        ApproachPoseConfiguration approachConfig = ApproachPoseConfiguration.fromPose(wp1)
+                .withAngularVelocity(maxSpeed_TaxiRot).withMaxSpeed(maxSpeed_TaxiTrans);
 
         Command cmdTaxi = new ApproachPoseCommand(swerve, approachConfig);
 
         return cmd.andThen(cmdTaxi);
     }
 
-    private Command addApproachAndShoot(Command cmd)
-    {
+    private Command addApproachAndShoot(Command cmd) {
         Command cmd1_prepShooter = shooter.prepareShooterCommand();
 
-        Command cmd2_approach = AutoHelper.GetApproachHubCommand(swerve, () -> swerve.getRobotPose(), () -> speedCoeff_approachHub);
+        Command cmd2_approach = AutoHelper.GetApproachHubCommand(swerve, () -> swerve.getRobotPose(),
+                () -> speedCoeff_approachHub);
 
         Command cmd3_prepAndShoot = shooter.prepareAndShootCommand(true);
 
         Command cmd4_sleepShooter = shooter.sleepShooterCommand();
 
-        return cmd.andThen(cmd1_prepShooter.raceWith(cmd2_approach)).andThen(cmd3_prepAndShoot.withTimeout(5)).andThen(cmd4_sleepShooter); // TODO: Variable time
+        return cmd.andThen(cmd1_prepShooter.raceWith(cmd2_approach)).andThen(cmd3_prepAndShoot.withTimeout(4))
+                .andThen(cmd4_sleepShooter); // TODO: Variable time
     }
 
-    private Command addClimb(Command cmd)
-    {
+    private Command addClimb(Command cmd) {
         cmd = cmd.andThen(climb.Down());
         cmd = addClimbTaxi_X_IfRight(cmd);
         cmd = addClimbTaxi(cmd);
@@ -141,17 +147,15 @@ public class AutoSubsystem extends SubsystemBase {
         cmd = addClimbForward(cmd);
         cmd = cmd.andThen(climb.Down(), Commands.waitSeconds(0.35));
 
-
         return cmd;
     }
 
-    private Command addClimbTaxi_X_IfRight(Command cmd)
-    {
+    private Command addClimbTaxi_X_IfRight(Command cmd) {
         Command xMatch = Commands.defer(() -> {
             Pose2d currentBluePose = AllianceUtils.FlipIfRed(swerve.getRobotPose());
 
-            if(currentBluePose.getY() > 4.25) return Commands.none(); // On the left side of the tower
-
+            if (currentBluePose.getY() > 4.25)
+                return Commands.none(); // On the left side of the tower
 
             double targetX = entry_climbTravelX.get();
 
@@ -168,49 +172,44 @@ public class AutoSubsystem extends SubsystemBase {
         return cmd.andThen(xMatch);
     }
 
-    private Command addClimbTaxi(Command cmd)
-    {
+    private Command addClimbTaxi(Command cmd) {
         Pose2d targetPose = new Pose2d(entry_climbTravelX.get(), entry_climbY.get(), Rotation2d.k180deg);
         targetPose = AllianceUtils.FlipIfRed(targetPose);
 
         ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
                 .withMaxSpeed(1.5)
                 .withAngularVelocity(Rotation2d.fromRotations(0.3));
-        
+
         Command cmdTaxi = new ApproachPoseCommand(swerve, config);
 
         return cmd.andThen(cmdTaxi);
     }
 
-    private Command addClimbBackward(Command cmd)
-    {
+    private Command addClimbBackward(Command cmd) {
         Pose2d targetPose = new Pose2d(entry_climbBackwardX.get(), entry_climbY.get(), Rotation2d.k180deg);
         targetPose = AllianceUtils.FlipIfRed(targetPose);
 
         ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
                 .withMaxSpeed(0.5)
                 .withAngularVelocity(Rotation2d.fromRotations(0.1));
-        
+
         Command cmdTaxi = new ApproachPoseCommand(swerve, config);
 
         return cmd.andThen(cmdTaxi);
     }
 
-    private Command addClimbForward(Command cmd)
-    {
-        Pose2d targetPose = new Pose2d(entry_climbForwardX.get(), entry_climbY.get(), Rotation2d.k180deg);
+    private Command addClimbForward(Command cmd) {
+        Pose2d targetPose = new Pose2d(entry_climbForwardX.get(), entry_climbForwardY.get(), Rotation2d.k180deg);
         targetPose = AllianceUtils.FlipIfRed(targetPose);
 
         ApproachPoseConfiguration config = ApproachPoseConfiguration.fromPose(targetPose)
                 .withMaxSpeed(0.3)
                 .withAngularVelocity(Rotation2d.fromRotations(0.1));
-        
-        Command cmdTaxi = new ApproachPoseCommand(swerve, config);
+
+        Command cmdTaxi = new ApproachPoseCommand(swerve, config).withTimeout(entry_climbForwardTimeout.get());
 
         return cmd.andThen(cmdTaxi);
     }
-
-
 
     @Override
     public void periodic() {
@@ -221,6 +220,17 @@ public class AutoSubsystem extends SubsystemBase {
             Pose2d startPose = AllianceUtils.FlipIfRed(blueStartPose);
             swerve.SetStartPose(startPose);
         }
+    }
+
+    public Command getAutoClimbCommand() {
+        return Commands.deferredProxy(() -> {
+            Command base = Commands.none();
+
+            base = addClimb(base);
+
+            return base;
+        });
+
     }
 
 }
